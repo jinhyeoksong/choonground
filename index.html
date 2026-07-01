@@ -11,6 +11,22 @@
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-800.woff2') format('woff2'); font-weight:800; font-style:normal; font-display:swap; }
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-900.woff2') format('woff2'); font-weight:900; font-style:normal; font-display:swap; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body, .phone, .screen, .playArea {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+
+  img, svg {
+    -webkit-user-drag: none;
+    user-drag: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
   body { margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; background:#2f2f2f; font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; color:#10151f; overflow:hidden; }
   .phone { width:393px; height:844px; max-width:100vw; max-height:100vh; position:relative; overflow:hidden; background-color: #B7E4FF; box-shadow:0 24px 72px rgba(0,0,0,.35); }
   .screen { position:absolute; inset:0; display:none; }
@@ -59,37 +75,31 @@
     height: 46px;       
     border-radius: 999px; 
     background: #FFFFFF; 
-    position: relative; /* 숫자 자리수 변경 시 아이콘/숫자 위치 고정 */
+    display: flex; 
+    gap: 14px;          
+    align-items: center; 
+    justify-content: center; 
     padding: 0;         
     box-shadow: none;   
   }
   
   /* [수정] 이동 오프셋을 제거하고, 시작 위치 정중앙을 기준으로 1.3배 확대 고정 */
   .pill img { 
-    position: absolute;
-    left: 20px;          /* 숫자 자리수와 무관하게 아이콘 위치 고정 */
-    top: 50%;
     width: 25px;   
     height: 22px;   
     object-fit: contain;
-    transform: translateY(-50%) scale(1.3);
-    transform-origin: center center;
+    transform: scale(1.3); /* translateX 제거하여 이동 금지 및 시작위치 고정 */
   }
   
   /* [수정] 오른쪽 이동 오프셋을 완전히 제거하고 순수 정렬 위치에 고정 */
   #boxCountText {
-    position: absolute;
-    right: 18px;         /* 숫자 오른쪽 끝 고정 */
-    top: 50%;
-    min-width: 42px;
-    text-align: right;
     font-family: 'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     font-weight: 600;   
     font-size: 22px;    
     line-height: 1;
     color: #111111;     
     letter-spacing: 0;  
-    transform: translateY(-50%);
+    transform: none; /* translateX 제거하여 이동 금지 및 시작위치 고정 */
   }
 
   /* 하단 및 기존 스크린 스타일 전체 유지 */
@@ -114,6 +124,7 @@
   @keyframes feverTextPop { 0%{ opacity:0; transform:translate(-50%,-42%) scale(.5); } 16%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 72%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-58%) scale(.96); } }
   
   .playArea { position:absolute; inset:0; overflow:hidden; touch-action:none; -webkit-user-select:none; user-select:none; }
+  .playArea img { pointer-events:none; }
   .laneHint { display:none !important; }
   .player { position:absolute; width:92px; height:114px; left:0; bottom:42px; z-index:18; transform-origin:50% 70%; will-change: transform; }
   .player img { width:100%; height:100%; object-fit:contain; display:block; }
@@ -281,6 +292,10 @@
   </div>
 <script>
 (() => {
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('dragstart', e => e.preventDefault());
+  document.addEventListener('selectstart', e => e.preventDefault());
+
   const ASSETS = { chunsik:'assets/player_character.png', box:'assets/item_supply_drop.png', gold:'assets/item_fever.png', mouse:'assets/obstacle_hazard.png', effect:'assets/fx_pickup.png' };
   const $ = (id) => document.getElementById(id);
   const screens = ['gameScreen','result','save','complete'].map($);
