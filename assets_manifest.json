@@ -1,0 +1,122 @@
+[
+  {
+    "filename": "player_idle.png",
+    "path": "assets/player_idle.png",
+    "mime": "image/png",
+    "size": [
+      2241,
+      3168
+    ],
+    "frames": 1,
+    "uses": 2,
+    "bytes": 224312
+  },
+  {
+    "filename": "player_run.webp",
+    "path": "assets/player_run.webp",
+    "mime": "image/webp",
+    "size": [
+      2241,
+      3168
+    ],
+    "frames": 6,
+    "uses": 1,
+    "bytes": 382068
+  },
+  {
+    "filename": "fx_pickup.png",
+    "path": "assets/fx_pickup.png",
+    "mime": "image/png",
+    "size": [
+      212,
+      226
+    ],
+    "frames": 1,
+    "uses": 1,
+    "bytes": 61616
+  },
+  {
+    "filename": "item_supply_drop.png",
+    "path": "assets/item_supply_drop.png",
+    "mime": "image/png",
+    "size": [
+      158,
+      197
+    ],
+    "frames": 1,
+    "uses": 3,
+    "bytes": 6065
+  },
+  {
+    "filename": "hero_character.png",
+    "path": "assets/hero_character.png",
+    "mime": "image/png",
+    "size": [
+      373,
+      416
+    ],
+    "frames": 1,
+    "uses": 3,
+    "bytes": 39982
+  },
+  {
+    "filename": "player_character.png",
+    "path": "assets/player_character.png",
+    "mime": "image/png",
+    "size": [
+      1835,
+      2477
+    ],
+    "frames": 1,
+    "uses": 1,
+    "bytes": 213831
+  },
+  {
+    "filename": "item_fever.png",
+    "path": "assets/item_fever.png",
+    "mime": "image/png",
+    "size": [
+      125,
+      149
+    ],
+    "frames": 1,
+    "uses": 1,
+    "bytes": 8247
+  },
+  {
+    "filename": "obstacle_hazard.png",
+    "path": "assets/obstacle_hazard.png",
+    "mime": "image/png",
+    "size": [
+      140,
+      120
+    ],
+    "frames": 1,
+    "uses": 1,
+    "bytes": 9652
+  },
+  {
+    "filename": "result_bg.png",
+    "path": "assets/result_bg.png",
+    "mime": "image/png",
+    "size": [
+      1060,
+      1536
+    ],
+    "frames": 1,
+    "uses": 1,
+    "bytes": 1163189
+  },
+  {
+    "filename": "reward_box.jpg",
+    "path": "assets/reward_box.jpg",
+    "mime": "image/jpeg",
+    "size": [
+      390,
+      684
+    ],
+    "frames": 1,
+    "uses": 1,
+    "bytes": 12001
+  }
+]
