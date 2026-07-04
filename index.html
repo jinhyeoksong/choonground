@@ -71,16 +71,16 @@
   }
   .pills { display: flex; align-items: center; }
   .pill { 
-    width: 104px;       
+    width: 118px;       
     height: 46px;       
     border-radius: 999px; 
     background: #FFFFFF; 
     display: flex; 
-    gap: 14px;          
     align-items: center; 
     justify-content: center; 
     padding: 0;         
-    box-shadow: none;   
+    box-shadow: none;
+    position: relative;   
   }
   
   /* [수정] 이동 오프셋을 제거하고, 시작 위치 정중앙을 기준으로 1.3배 확대 고정 */
@@ -88,18 +88,24 @@
     width: 25px;   
     height: 22px;   
     object-fit: contain;
-    transform: scale(1.3); /* translateX 제거하여 이동 금지 및 시작위치 고정 */
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%) scale(1.3); /* pill 좌측 기준 12px 고정 */
   }
   
   /* [수정] 오른쪽 이동 오프셋을 완전히 제거하고 순수 정렬 위치에 고정 */
   #boxCountText {
     font-family: 'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-weight: 600;   
+    font-weight: 700;   
     font-size: 22px;    
     line-height: 1;
     color: #111111;     
-    letter-spacing: 0;  
-    transform: none; /* translateX 제거하여 이동 금지 및 시작위치 고정 */
+    letter-spacing: 0;
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%); /* pill 우측 기준 12px 고정 */
   }
 
   /* 하단 및 기존 스크린 스타일 전체 유지 */
@@ -111,12 +117,23 @@
   
   .feverBadge {
     position:absolute; top:37%; left:50%; transform:translate(-50%,-50%) scale(.9);
-    font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size:62px; line-height:1.3; font-weight:700; letter-spacing:0; color:#A662EA;
-    text-shadow:-4px 0 0 #fff, 4px 0 0 #fff, 0 -4px 0 #fff, 0 4px 0 #fff,-3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff;
     display:none; align-items:center; justify-content:center; z-index:55; pointer-events:none; white-space:nowrap;
   }
   .feverBadge.on { display:flex; animation:feverTextPop 1.05s ease-out forwards; }
+  .feverSvg { width:270px; height:96px; display:block; overflow:visible; }
+  .feverSvg text {
+    font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size:62px;
+    font-weight:700;
+    fill:#A662EA;
+    stroke:#FFFFFF;
+    stroke-width:8px;
+    stroke-linejoin:round;
+    stroke-linecap:round;
+    paint-order:stroke fill;
+    dominant-baseline:middle;
+    text-anchor:middle;
+  }
   .levelBadge { position:absolute; top:158px; left:50%; transform:translateX(-50%); height:30px; padding:0 12px; border-radius:16px; background:rgba(17,24,39,.76); color:#fff; font-family:Tomorrow,Impact,sans-serif; font-size:13px; font-weight:900; letter-spacing:.3px; display:flex; align-items:center; justify-content:center; z-index:39; opacity:.9; }
   .levelBadge.up { animation:levelUp .72s ease-out; background:#ffef49; color:#111; box-shadow:0 8px 24px rgba(255,224,40,.42); }
   
@@ -133,18 +150,23 @@
   
   .object { position:absolute; z-index:14; will-change:transform; display:none; }
   .object img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
-  .box { width:42px; height:52px; } .gold { width:42px; height:50px; } .mouse { width:48px; height:42px; }
+  .box { width:42px; height:52px; } .gold { width:31px; height:53px; } .mouse { width:45px; height:63px; }
   
   .comboCenter { position:absolute; left:50%; top:37%; transform:translate(-50%,-50%); z-index:50; pointer-events:none; display:none; text-align:center; min-width:120px; }
   .comboCenter.show { display:block; animation:comboPop .82s ease-out forwards; }
-  .comboNum {
-    font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; font-size:72px; line-height:1.3; font-weight:600; color:#4C75FC;
-    text-shadow:-4px 0 0 #fff, 4px 0 0 #fff, 0 -4px 0 #fff, 0 4px 0 #fff;
+  .comboSvg { width:170px; height:132px; display:block; overflow:visible; }
+  .comboSvg text {
+    font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    fill:#4C75FC;
+    stroke:#FFFFFF;
+    stroke-linejoin:round;
+    stroke-linecap:round;
+    paint-order:stroke fill;
+    dominant-baseline:middle;
+    text-anchor:middle;
   }
-  .comboText {
-    font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; display:block; margin-top:-9px; font-size:25px; line-height:1.3; font-weight:700; color:#4C75FC;
-    text-shadow:-4px 0 0 #fff, 4px 0 0 #fff, 0 -4px 0 #fff, 0 4px 0 #fff;
-  }
+  .comboSvgNum { font-size:72px; font-weight:600; stroke-width:8px; }
+  .comboSvgText { font-size:25px; font-weight:700; stroke-width:6px; }
   @keyframes comboPop { 0%{ opacity:0; transform:translate(-50%,-40%) scale(.55); } 18%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 62%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-64%) scale(.98); } }
   
   .pickupEffect { position:absolute; left:0; top:0; width:58px; height:58px; z-index:60; pointer-events:none; transform:translate(-50%,-50%) scale(.7); animation:pickupBurst .56s ease-out forwards; }
@@ -152,11 +174,25 @@
   @keyframes pickupBurst { 0% { opacity:0; transform:translate(-50%,-50%) scale(.42) rotate(-10deg); } 20% { opacity:1; transform:translate(-50%,-50%) scale(1.08) rotate(0deg); } 100% { opacity:0; transform:translate(-50%,-68%) scale(1.38) rotate(8deg); } }
   
   .pickupPlus {
-    position:absolute; left:0; top:0; z-index:62; pointer-events:none; transform:translate(-50%,-50%); font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; font-size:22px; line-height:1; font-weight:900; letter-spacing:-1px; color:#38C957;
-    -webkit-text-stroke:2px #fff; text-shadow:0 1px 0 #fff, 1px 0 0 #fff; animation:pickupPlusPop .72s ease-out forwards;
+    position:absolute; left:0; top:0; width:72px; height:52px; z-index:62; pointer-events:none; transform:translate(-50%,-50%); animation:pickupPlusPop .72s ease-out forwards;
+  }
+  .pickupPlusSvg { width:72px; height:52px; display:block; overflow:visible; }
+  .pickupPlusSvg text {
+    font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size:30px;
+    font-weight:700;
+    letter-spacing:-1px;
+    fill:#38C957;
+    stroke:#FFFFFF;
+    stroke-width:6px;
+    stroke-linejoin:round;
+    stroke-linecap:round;
+    paint-order:stroke fill;
+    dominant-baseline:middle;
+    text-anchor:middle;
   }
   .pickupPlus::before, .pickupPlus::after { content:''; position:absolute; width:5px; height:5px; border-radius:50%; background:#FFE872; box-shadow:10px -7px 0 #FFE872, -8px 7px 0 #FFF2A8; opacity:.95; }
-  .pickupPlus::before { left:-10px; top:-8px; } .pickupPlus::after { right:-11px; bottom:-4px; transform:scale(.8); }
+  .pickupPlus::before { left:2px; top:0px; } .pickupPlus::after { right:0px; bottom:4px; transform:scale(.8); }
   @keyframes pickupPlusPop { 0% { opacity:0; transform:translate(-50%,-35%) scale(.65); } 16% { opacity:1; transform:translate(-50%,-62%) scale(1.18); } 55% { opacity:1; transform:translate(-50%,-86%) scale(1); } 100% { opacity:0; transform:translate(-50%,-112%) scale(.92); } }
   
   .feverFlash { position:absolute; inset:0; opacity:0; pointer-events:none; z-index:26; mix-blend-mode:screen; background: radial-gradient(circle at 50% 52%, rgba(255,245,66,.55), transparent 35%), linear-gradient(135deg, rgba(255,232,0,.25), rgba(255,119,0,.22), rgba(255,255,255,.12)); }
@@ -172,8 +208,8 @@
   .skyCloud.small-mid { width:120px; opacity:.34; }
   .skyCloud.big-right { width:190px; opacity:.30; }
 
-  .mountain-bg { position: absolute; left: 0; bottom: 40px; width: 100%; height: 248px; background: url('assets/bg_mountain.jpg') no-repeat bottom left; background-size: 1179px auto; z-index: 5; will-change: background-position-x; }
-  .ground { position: absolute; left: 0; bottom: 0; width: 100%; height: 130px; background: url('assets/bg_ground.png') repeat-x bottom left; background-size: auto 100%; z-index: 10; will-change: background-position-x; }
+  .mountain-bg { position: absolute; left: 0; bottom: 85px; width: 100%; height: 248px; background: url('assets/bg_mountain.webp') no-repeat bottom left; background-size: 1179px auto; z-index: 5; will-change: background-position-x; }
+  .ground { position: absolute; left: 0; bottom: 0; width: 100%; height: 85px; background: url('assets/bg_ground.png') repeat-x bottom left; background-size: 393px 85px; z-index: 10; will-change: background-position-x; }
 
   /* result */
   .panel { position:absolute; left:20px; right:20px; top:118px; background:rgba(255,255,255,.94); border-radius:28px; padding:28px 22px; box-shadow:0 20px 48px rgba(0,0,0,.08); text-align:center; }
@@ -244,9 +280,18 @@
         </div>
       </div>
       
-      <div class="feverBadge" id="feverBadge">FEVER!</div>
+      <div class="feverBadge" id="feverBadge">
+        <svg class="feverSvg" viewBox="0 0 270 96" aria-hidden="true">
+          <text x="135" y="50">FEVER!</text>
+        </svg>
+      </div>
       <div class="levelBadge" id="levelBadge">LV.1</div>
-      <div class="comboCenter" id="comboCenter"><div class="comboNum" id="comboNum">1</div><div class="comboText">COMBO</div></div>
+      <div class="comboCenter" id="comboCenter">
+        <svg class="comboSvg" viewBox="0 0 170 132" aria-hidden="true">
+          <text class="comboSvgNum" id="comboNum" x="85" y="50">1</text>
+          <text class="comboSvgText" x="85" y="105">COMBO</text>
+        </svg>
+      </div>
       <div class="player" id="player"><img src="assets/player_idle.png" alt="춘식이"/></div>
     </section>
 
@@ -403,7 +448,7 @@
 
   function updateHud() {
     updatePositionHud();
-    boxCountText.textContent = supplyCount;
+    boxCountText.textContent = Math.min(supplyCount, 9999);
     if (levelBadge) levelBadge.textContent = 'LV.' + difficultyLevel;
   }
 
@@ -452,10 +497,12 @@
     setBgmFever(false);
     objects.filter(o=>o.type==='box' || o.type==='gold').forEach(o=>{
       spawnPickupEffect(o.x + o.w/2, o.y + o.h/2);
+      supplyCount += 1;
       o.dead=true;
       o.el.style.display = 'none';
       const p = objectPool.find(x=>x.el===o.el); if(p)p.inUse=false;
     });
+    updateHud();
     objects = objects.filter(o=>!o.dead);
     lastSpawnTime = now + 220;
   }
@@ -474,6 +521,7 @@
     } else {
       poolItem.inUse = true;
     }
+    poolItem.el.style.opacity = '1';
     poolItem.el.style.display = 'block'; 
     return poolItem.el;
   }
@@ -580,6 +628,7 @@
 
   function releaseObject(o) {
     o.dead = true;
+    o.el.style.opacity = '1';
     o.el.style.display = 'none';
     const poolItem = objectPool.find(p => p.el === o.el);
     if (poolItem) poolItem.inUse = false;
@@ -591,7 +640,7 @@
       o.y += o.speed*dt;
       o.el.style.transform = `translate3d(${o.x - cameraX}px, ${o.y}px, 0)`;
 
-      if (o.y > SCREEN_H + 12) {
+      if (o.y >= SCREEN_H - 100) {
         if (o.type==='box' || o.type==='gold') combo = 0;
         releaseObject(o);
         continue;
@@ -665,7 +714,7 @@
 
     const plus = document.createElement('div');
     plus.className = 'pickupPlus';
-    plus.textContent = '+1';
+    plus.innerHTML = '<svg class="pickupPlusSvg" viewBox="0 0 72 52" aria-hidden="true"><text x="36" y="27">+1</text></svg>';
     plus.style.left = screenX + 'px';
     plus.style.top = y + 'px';
     playArea.appendChild(plus);
