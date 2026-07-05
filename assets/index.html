@@ -31,12 +31,6 @@
   .phone { width:393px; height:844px; max-width:100vw; max-height:100vh; position:relative; overflow:hidden; background-color: #B7E4FF; box-shadow:0 24px 72px rgba(0,0,0,.35); }
   .screen { position:absolute; inset:0; display:none; }
   .screen.active { display:block; }
-  #gameScreen.resultMode .player,
-  #gameScreen.resultMode .player img {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-  }
   
   /* 결과/연동 화면용 상단바 (기존 유지) */
   .topbar { position:absolute; top:0; left:0; right:0; height:50px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-weight:900; z-index:20; }
@@ -309,7 +303,7 @@
     position: absolute;
     inset: 0;
     z-index: 0;
-    background: rgba(0, 0, 0, .5);
+    background: rgba(22, 39, 50, .34);
     pointer-events: none;
   }
   .resultCard {
@@ -331,7 +325,7 @@
     font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 26px;
     line-height: 1;
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: -1px;
     color: #111111;
   }
@@ -352,7 +346,7 @@
     font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 48px;
     line-height: 1;
-    font-weight: 700;
+    font-weight: 800;
     letter-spacing: -1.5px;
     color: #111111;
   }
@@ -368,11 +362,11 @@
     font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 18px;
     line-height: 1;
-    font-weight: 600;
+    font-weight: 700;
     color: #202020;
   }
   .resultStatValue {
-    font-weight: 600;
+    font-weight: 800;
   }
   .resultButtons {
     position: absolute;
@@ -391,7 +385,7 @@
     font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 18px;
     line-height: 1;
-    font-weight: 600;
+    font-weight: 800;
     cursor: pointer;
   }
   .resultBtnMain {
@@ -640,9 +634,7 @@
     updateCamera();
     updateHud();
     feverBadge.classList.remove('on'); feverFlash.classList.remove('on');
-    $('gameScreen').classList.remove('resultMode');
     playerEl.style.display = '';
-    playerImg.style.display = '';
     playerEl.classList.remove('hit');
     setPlayerVisual('idle', true);
     positionPlayer();
@@ -989,12 +981,7 @@
     const finalFeverCount = $('finalFeverCount');
     if (finalComboCount) finalComboCount.textContent = combo + '개';
     if (finalFeverCount) finalFeverCount.textContent = feverCount + '회';
-    clearTimeout(hitVisualTimer);
-    isHitVisual = false;
-    playerEl.classList.remove('hit');
     playerEl.style.display = 'none';
-    playerImg.style.display = 'none';
-    $('gameScreen').classList.add('resultMode');
     $('result').classList.add('active');
   }
 
