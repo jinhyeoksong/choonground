@@ -34,6 +34,16 @@
     pointer-events: none;
   }
 
+  button,
+  #quitBtn,
+  .topbar .back,
+  .topbar .share {
+    pointer-events: auto;
+    touch-action: manipulation;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
   body { margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; background:#2f2f2f; font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; color:#10151f; overflow:hidden; }
   .phone { width:393px; height:844px; max-width:100vw; max-height:100vh; position:relative; overflow:hidden; background-color: #B7E4FF; box-shadow:0 24px 72px rgba(0,0,0,.35); }
   .screen { position:absolute; inset:0; display:none; }
@@ -549,14 +559,23 @@
   </div>
 <script>
 (() => {
+  function isInteractiveTarget(target) {
+    return !!(target && target.closest && target.closest('button, #quitBtn, .topbar .back, .topbar .share'));
+  }
+
+  function preventGameTouch(e) {
+    if (isInteractiveTarget(e.target)) return;
+    e.preventDefault();
+  }
+
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('dragstart', e => e.preventDefault());
   document.addEventListener('selectstart', e => e.preventDefault());
   document.addEventListener('gesturestart', e => e.preventDefault());
   document.addEventListener('gesturechange', e => e.preventDefault());
-  document.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
-  document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-  document.addEventListener('touchend', e => e.preventDefault(), { passive: false });
+  document.addEventListener('touchstart', preventGameTouch, { passive: false });
+  document.addEventListener('touchmove', preventGameTouch, { passive: false });
+  document.addEventListener('touchend', preventGameTouch, { passive: false });
 
   const ASSETS = { chunsik:'assets/player_character.png', box:'assets/item_supply_drop.png', gold:'assets/item_fever.png', mouse:'assets/obstacle_hazard.png', effect:'assets/fx_pickup.png' };
   const $ = (id) => document.getElementById(id);
@@ -669,6 +688,7 @@
     score=0; supplyCount=0; combo=0; feverCount=0; lives=3;
     difficultyLevel=1;
     keyLeft=false; keyRight=false;
+    activeMovePointerId = null;
     playerVisualState='';
     isHitVisual=false;
     clearTimeout(hitVisualTimer);
@@ -1024,6 +1044,8 @@
   }
 
   function endGame() {
+    stopTouchMove();
+    activeMovePointerId = null;
     isGameOver=true; isStarted=false; if (raf) cancelAnimationFrame(raf);
     stopBgm();
     setGameBackgroundMode(false);
@@ -1124,16 +1146,91 @@
 
   function stopTouchMove() { keyLeft = false; keyRight = false; }
 
-  playArea.addEventListener('pointerdown', e=>{ e.preventDefault(); if (!isStarted || isGameOver) return; setTouchMoveByClientX(e.clientX); });
-  playArea.addEventListener('pointermove', e=>{ e.preventDefault(); if (!isStarted || isGameOver) return; if (e.buttons > 0) { setTouchMoveByClientX(e.clientX); } });
-  playArea.addEventListener('pointerup', e=>{ e.preventDefault(); stopTouchMove(); });
-  playArea.addEventListener('pointercancel', e=>{ e.preventDefault(); stopTouchMove(); });
+  let activeMovePointerId = null;
 
-  const retryBtnEl = $('retryBtn'); if (retryBtnEl) retryBtnEl.onclick=startGame;
-  const mainBtnEl = $('mainBtn'); if (mainBtnEl) mainBtnEl.onclick=startGame;
-  $('quitBtn').onclick=endGame;
-  $('completeBtn').onclick=()=>show('complete');
-  $('againBtn').onclick=startGame;
+  playArea.addEventListener('pointerdown', e=>{
+    e.preventDefault();
+    if (!isStarted || isGameOver) return;
+    activeMovePointerId = e.pointerId;
+    if (playArea.setPointerCapture) {
+      try { playArea.setPointerCapture(e.pointerId); } catch (_) {}
+    }
+    setTouchMoveByClientX(e.clientX);
+  });
+
+  playArea.addEventListener('pointermove', e=>{
+    e.preventDefault();
+    if (!isStarted || isGameOver) return;
+    if (activeMovePointerId === e.pointerId) {
+      setTouchMoveByClientX(e.clientX);
+    }
+  });
+
+  playArea.addEventListener('pointerup', e=>{
+    e.preventDefault();
+    if (activeMovePointerId === e.pointerId) {
+      activeMovePointerId = null;
+      if (playArea.releasePointerCapture) {
+        try { playArea.releasePointerCapture(e.pointerId); } catch (_) {}
+      }
+      stopTouchMove();
+    }
+  });
+
+  playArea.addEventListener('pointercancel', e=>{
+    e.preventDefault();
+    if (activeMovePointerId === e.pointerId) {
+      activeMovePointerId = null;
+      stopTouchMove();
+    }
+  });
+
+  playArea.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    if (!isStarted || isGameOver || !e.touches || !e.touches[0]) return;
+    setTouchMoveByClientX(e.touches[0].clientX);
+  }, { passive: false });
+
+  playArea.addEventListener('touchmove', e=>{
+    e.preventDefault();
+    if (!isStarted || isGameOver || !e.touches || !e.touches[0]) return;
+    setTouchMoveByClientX(e.touches[0].clientX);
+  }, { passive: false });
+
+  playArea.addEventListener('touchend', e=>{
+    e.preventDefault();
+    stopTouchMove();
+  }, { passive: false });
+
+  playArea.addEventListener('touchcancel', e=>{
+    e.preventDefault();
+    stopTouchMove();
+  }, { passive: false });
+
+  let lastTapActionTime = 0;
+
+  function bindTap(id, handler) {
+    const el = $(id);
+    if (!el) return;
+    const run = (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      const now = performance.now();
+      if (now - lastTapActionTime < 180) return;
+      lastTapActionTime = now;
+      handler();
+    };
+    el.addEventListener('pointerup', run);
+    el.addEventListener('click', run);
+  }
+
+  bindTap('retryBtn', startGame);
+  bindTap('mainBtn', startGame);
+  bindTap('quitBtn', endGame);
+  bindTap('completeBtn', () => show('complete'));
+  bindTap('againBtn', startGame);
 
   updatePhoneScale();
   setTimeout(startGame, 0);
