@@ -437,6 +437,18 @@
       margin: 0;
       transform-origin: center bottom;
     }
+
+    #quitBtn {
+      top: calc(var(--mobile-ui-offset, 0px) + 24px);
+    }
+
+    .hud {
+      top: calc(var(--mobile-ui-offset, 0px) + 74px);
+    }
+
+    .lifeHud {
+      top: calc(var(--mobile-ui-offset, 0px) + 85px);
+    }
   }
 </style>
 </head>
@@ -580,11 +592,17 @@
     const isMobile = window.matchMedia('(max-width: 600px)').matches;
     if (!isMobile) {
       phoneEl.style.transform = '';
+      phoneEl.style.removeProperty('--mobile-ui-offset');
       return;
     }
     const viewportW = window.innerWidth || document.documentElement.clientWidth || SCREEN_W;
+    const viewportH = window.innerHeight || document.documentElement.clientHeight || SCREEN_H;
     const scale = viewportW / SCREEN_W;
-    phoneEl.style.transform = `translateY(30px) scale(${scale})`;
+    const shiftY = 30;
+    const phoneTop = viewportH - (SCREEN_H * scale) + shiftY;
+    const mobileUiOffset = Math.max(0, Math.ceil(-phoneTop / scale));
+    phoneEl.style.setProperty('--mobile-ui-offset', mobileUiOffset + 'px');
+    phoneEl.style.transform = `translateY(${shiftY}px) scale(${scale})`;
   }
 
   window.addEventListener('resize', updatePhoneScale);
@@ -1111,21 +1129,11 @@
   playArea.addEventListener('pointerup', e=>{ e.preventDefault(); stopTouchMove(); });
   playArea.addEventListener('pointercancel', e=>{ e.preventDefault(); stopTouchMove(); });
 
-  function bindGameStartButton(id) {
-    const el = $(id);
-    if (!el) return;
-    const goGameStart = (e) => {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      startGame();
-    };
-    el.addEventListener('pointerup', goGameStart);
-    el.addEventListener('click', goGameStart);
-  }
-
-  ['retryBtn', 'mainBtn', 'quitBtn', 'completeBtn', 'againBtn'].forEach(bindGameStartButton);
+  const retryBtnEl = $('retryBtn'); if (retryBtnEl) retryBtnEl.onclick=startGame;
+  const mainBtnEl = $('mainBtn'); if (mainBtnEl) mainBtnEl.onclick=startGame;
+  $('quitBtn').onclick=endGame;
+  $('completeBtn').onclick=()=>show('complete');
+  $('againBtn').onclick=startGame;
 
   updatePhoneScale();
   setTimeout(startGame, 0);
