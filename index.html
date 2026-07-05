@@ -584,7 +584,7 @@
     }
     const viewportW = window.innerWidth || document.documentElement.clientWidth || SCREEN_W;
     const scale = viewportW / SCREEN_W;
-    phoneEl.style.transform = `scale(${scale})`;
+    phoneEl.style.transform = `translateY(30px) scale(${scale})`;
   }
 
   window.addEventListener('resize', updatePhoneScale);
@@ -1111,11 +1111,21 @@
   playArea.addEventListener('pointerup', e=>{ e.preventDefault(); stopTouchMove(); });
   playArea.addEventListener('pointercancel', e=>{ e.preventDefault(); stopTouchMove(); });
 
-  const retryBtnEl = $('retryBtn'); if (retryBtnEl) retryBtnEl.onclick=startGame;
-  const mainBtnEl = $('mainBtn'); if (mainBtnEl) mainBtnEl.onclick=startGame;
-  $('quitBtn').onclick=endGame;
-  $('completeBtn').onclick=()=>show('complete');
-  $('againBtn').onclick=startGame;
+  function bindGameStartButton(id) {
+    const el = $(id);
+    if (!el) return;
+    const goGameStart = (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      startGame();
+    };
+    el.addEventListener('pointerup', goGameStart);
+    el.addEventListener('click', goGameStart);
+  }
+
+  ['retryBtn', 'mainBtn', 'quitBtn', 'completeBtn', 'againBtn'].forEach(bindGameStartButton);
 
   updatePhoneScale();
   setTimeout(startGame, 0);
