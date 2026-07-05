@@ -10,7 +10,13 @@
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-700.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap; }
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-800.woff2') format('woff2'); font-weight:800; font-style:normal; font-display:swap; }
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-900.woff2') format('woff2'); font-weight:900; font-style:normal; font-display:swap; }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
   html, body, .phone, .screen, .playArea {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -19,12 +25,13 @@
     overscroll-behavior: none;
   }
 
-  img, svg {
+  img, svg, canvas {
     -webkit-user-drag: none;
     user-drag: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
+    pointer-events: none;
   }
 
   body { margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; background:#2f2f2f; font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; color:#10151f; overflow:hidden; }
@@ -404,8 +411,23 @@
   }
 
   @media (max-width: 600px) {
-    html, body { width: 100%; min-height: 100%; height: 100dvh; overflow: hidden; background: #8bdcff; }
-    body { display: flex; justify-content: center; align-items: center; padding: 0; margin: 0; }
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: #8bdcff;
+      overscroll-behavior: none;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding: 0;
+      margin: 0;
+      position: fixed;
+      inset: 0;
+    }
     .phone {
       width: 393px;
       height: 844px;
@@ -413,7 +435,7 @@
       max-height: none;
       border-radius: 0;
       margin: 0;
-      transform-origin: center center;
+      transform-origin: center bottom;
     }
   }
 </style>
@@ -518,6 +540,11 @@
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('dragstart', e => e.preventDefault());
   document.addEventListener('selectstart', e => e.preventDefault());
+  document.addEventListener('gesturestart', e => e.preventDefault());
+  document.addEventListener('gesturechange', e => e.preventDefault());
+  document.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+  document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+  document.addEventListener('touchend', e => e.preventDefault(), { passive: false });
 
   const ASSETS = { chunsik:'assets/player_character.png', box:'assets/item_supply_drop.png', gold:'assets/item_fever.png', mouse:'assets/obstacle_hazard.png', effect:'assets/fx_pickup.png' };
   const $ = (id) => document.getElementById(id);
@@ -556,8 +583,7 @@
       return;
     }
     const viewportW = window.innerWidth || document.documentElement.clientWidth || SCREEN_W;
-    const viewportH = window.innerHeight || document.documentElement.clientHeight || SCREEN_H;
-    const scale = Math.min(viewportW / SCREEN_W, viewportH / SCREEN_H);
+    const scale = viewportW / SCREEN_W;
     phoneEl.style.transform = `scale(${scale})`;
   }
 
@@ -1080,10 +1106,10 @@
 
   function stopTouchMove() { keyLeft = false; keyRight = false; }
 
-  playArea.addEventListener('pointerdown', e=>{ if (!isStarted || isGameOver) return; setTouchMoveByClientX(e.clientX); e.preventDefault(); });
-  playArea.addEventListener('pointermove', e=>{ if (!isStarted || isGameOver) return; if (e.buttons > 0) { setTouchMoveByClientX(e.clientX); } e.preventDefault(); });
-  playArea.addEventListener('pointerup', e=>{ stopTouchMove(); e.preventDefault(); });
-  playArea.addEventListener('pointercancel', e=>{ stopTouchMove(); e.preventDefault(); });
+  playArea.addEventListener('pointerdown', e=>{ e.preventDefault(); if (!isStarted || isGameOver) return; setTouchMoveByClientX(e.clientX); });
+  playArea.addEventListener('pointermove', e=>{ e.preventDefault(); if (!isStarted || isGameOver) return; if (e.buttons > 0) { setTouchMoveByClientX(e.clientX); } });
+  playArea.addEventListener('pointerup', e=>{ e.preventDefault(); stopTouchMove(); });
+  playArea.addEventListener('pointercancel', e=>{ e.preventDefault(); stopTouchMove(); });
 
   const retryBtnEl = $('retryBtn'); if (retryBtnEl) retryBtnEl.onclick=startGame;
   const mainBtnEl = $('mainBtn'); if (mainBtnEl) mainBtnEl.onclick=startGame;
