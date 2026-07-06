@@ -226,7 +226,7 @@
   .comboSvgText { font-size:25px; font-weight:700; stroke-width:6px; }
   @keyframes comboPop { 0%{ opacity:0; transform:translate(-50%,-40%) scale(.55); } 18%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 62%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-64%) scale(.98); } }
   
-  /* ★ 2단계 튜닝: fx_pickup.png 이미지가 회전 폭파하지 않고, 마리오 코인처럼 중심에서 영롱하게 팝-투명 링으로 퍼지는 글로우 트윙클 연출 */
+  /* ★ 2단계 튜닝: fx_pickup.png 이미지가 회전 폭발하지 않고, 마리오 코인처럼 중심에서 영롱하게 팝-투명 링으로 퍼지는 글로우 트윙클 연출 */
   .pickupEffect { position:absolute; left:0; top:0; width:58px; height:58px; z-index:60; pointer-events:none; transform:translate(-50%,-50%) scale(.7); animation:pickupBurst 0.45s ease-out forwards; }
   .pickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
   .feverAutoPickupEffect { position:absolute; left:0; top:0; width:64px; height:64px; z-index:60; pointer-events:none; transform:translate(-50%,-50%) scale(.8); animation:feverAutoPickupBurst 1.05s ease-out forwards; }
@@ -421,9 +421,10 @@
   document.addEventListener('selectstart', e => e.preventDefault());
   document.addEventListener('gesturestart', e => e.preventDefault());
   document.addEventListener('gesturechange', e => e.preventDefault());
-  document.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
-  document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-  document.addEventListener('touchend', e => e.preventDefault(), { passive: false });
+
+  // ★ [안심 수정: Bug 2 해결] 전역 document touch preventDefault를 전면 제거
+  // HTML/CSS의 touch-action: none 지시어가 모바일 스크롤 및 줌 억제를 완벽히 담당하므로,
+  // 모바일 버튼의 native click 동작과 터치 전파가 100% 정상 복구됩니다.
 
   const ASSETS = { chunsik:'assets/player_character.png', box:'assets/item_supply_drop.png', gold:'assets/item_fever.png', mouse:'assets/obstacle_hazard.png', effect:'assets/fx_pickup.png' };
   const $ = (id) => document.getElementById(id);
@@ -957,6 +958,7 @@
         opacity = 1.0 - t;
         scale = 1.0 - t * 0.6;
         
+        vx *= 0.85; // ★ [최적화] 좌우 비산 속도를 지속적으로 감쇄시켜 춘식이 주변에 예쁘게 수렴하도록 고정
         px += vx;
         vy += buoyancy; // 역중력 가속
         py += vy;
@@ -1081,6 +1083,9 @@
     if (e.key==='ArrowRight'||e.key==='d'||e.key==='D') keyRight=false;
   });
 
+  // ★ [안심 수정: Bug 1 해결] 드래그 잠금 및 조작계 원천 수술
+  let activePointerId = null; // 독점 추적할 마스터 포인터 ID
+
   function setTouchMoveByClientX(clientX) {
     if (!isStarted || isGameOver) return;
     const rect = phoneEl.getBoundingClientRect();
@@ -1090,10 +1095,42 @@
 
   function stopTouchMove() { keyLeft = false; keyRight = false; }
 
-  playArea.addEventListener('pointerdown', e=>{ e.preventDefault(); if (!isStarted || isGameOver) return; setTouchMoveByClientX(e.clientX); });
-  playArea.addEventListener('pointermove', e=>{ e.preventDefault(); if (!isStarted || isGameOver) return; if (e.buttons > 0) { setTouchMoveByClientX(e.clientX); } });
-  playArea.addEventListener('pointerup', e=>{ e.preventDefault(); stopTouchMove(); });
-  playArea.addEventListener('pointercancel', e=>{ e.preventDefault(); stopTouchMove(); });
+  // playArea 레이어에서만 터치 이벤트를 캡처하고 단일 포인터 고정 방식을 사용합니다.
+  playArea.addEventListener('pointerdown', e=>{
+    e.preventDefault();
+    if (!isStarted || isGameOver) return;
+    // 첫 손가락 터치만 수용하고 세컨드 터치는 완전 무시 (멀티터치 리셋 버그 완벽 차단)
+    if (activePointerId === null) {
+      activePointerId = e.pointerId;
+      setTouchMoveByClientX(e.clientX);
+    }
+  });
+
+  playArea.addEventListener('pointermove', e=>{
+    e.preventDefault();
+    if (!isStarted || isGameOver) return;
+    // 현재 활성화된 마스터 포인터의 드래그 좌표만 신뢰 (e.buttons 검사를 생략하여 전 기기 호환성 확보)
+    if (e.pointerId === activePointerId) {
+      setTouchMoveByClientX(e.clientX);
+    }
+  });
+
+  playArea.addEventListener('pointerup', e=>{
+    e.preventDefault();
+    // 활성 포인터가 떼어졌을 때만 정직하게 멈춤
+    if (e.pointerId === activePointerId) {
+      activePointerId = null;
+      stopTouchMove();
+    }
+  });
+
+  playArea.addEventListener('pointercancel', e=>{
+    e.preventDefault();
+    if (e.pointerId === activePointerId) {
+      activePointerId = null;
+      stopTouchMove();
+    }
+  });
 
   const retryBtnEl = $('retryBtn'); if (retryBtnEl) retryBtnEl.onclick=startGame;
   const mainBtnEl = $('mainBtn'); if (mainBtnEl) mainBtnEl.onclick=startGame;
