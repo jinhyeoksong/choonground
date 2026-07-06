@@ -226,11 +226,16 @@
   .comboSvgText { font-size:25px; font-weight:700; stroke-width:6px; }
   @keyframes comboPop { 0%{ opacity:0; transform:translate(-50%,-40%) scale(.55); } 18%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 62%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-64%) scale(.98); } }
   
-  .pickupEffect { position:absolute; left:0; top:0; width:58px; height:58px; z-index:60; pointer-events:none; transform:translate(-50%,-50%) scale(.7); animation:pickupBurst .56s ease-out forwards; }
+  /* ★ 2단계 튜닝: fx_pickup.png 이미지가 회전 폭파하지 않고, 마리오 코인처럼 중심에서 영롱하게 팝-투명 링으로 퍼지는 글로우 트윙클 연출 */
+  .pickupEffect { position:absolute; left:0; top:0; width:58px; height:58px; z-index:60; pointer-events:none; transform:translate(-50%,-50%) scale(.7); animation:pickupBurst 0.45s ease-out forwards; }
   .pickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
   .feverAutoPickupEffect { position:absolute; left:0; top:0; width:64px; height:64px; z-index:60; pointer-events:none; transform:translate(-50%,-50%) scale(.8); animation:feverAutoPickupBurst 1.05s ease-out forwards; }
   .feverAutoPickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
-  @keyframes pickupBurst { 0% { opacity:0; transform:translate(-50%,-50%) scale(.42) rotate(-10deg); } 20% { opacity:1; transform:translate(-50%,-50%) scale(1.08) rotate(0deg); } 100% { opacity:0; transform:translate(-50%,-68%) scale(1.38) rotate(8deg); } }
+  @keyframes pickupBurst {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    25% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.35); }
+  }
   @keyframes feverAutoPickupBurst {
     0% {
       opacity:0;
@@ -258,8 +263,6 @@
       filter:brightness(1);
     }
   }
-  
-  /* [수정] 2단계: 불필요해진 +1 팝업 스타일(pickupPlus, pickupPlusPop) 완전 제거 */
 
   .feverFlash { position:absolute; inset:0; opacity:0; pointer-events:none; z-index:26; mix-blend-mode:screen; background: radial-gradient(circle at 50% 52%, rgba(255,245,66,.55), transparent 35%), linear-gradient(135deg, rgba(255,232,0,.25), rgba(255,119,0,.22), rgba(255,255,255,.12)); }
   .feverFlash.on { opacity:1; animation:feverStrobe .22s ease-in-out infinite alternate; }
@@ -890,14 +893,15 @@
     setTimeout(()=>fx.remove(), 1050);
   }
 
-  // ★ 2단계 추가: 노란색/금빛 십자 별(✦)과 둥근 입자들이 흩날리는 스파클링 글리터 엔진 구현
+  // ★ 2단계 수정: 마리오 코인 획득 방식처럼 중력을 완전히 거스르고 
+  // 십자 별(✦)과 둥근 빛가루가 위로 둥실 떠오르며 '수집/획득'되는 안심 이펙트 시스템
   function spawnSparklingParticles(x, y, isGold) {
     const screenX = x - cameraX;
     
-    // 일반 상자는 10개로 흩날리고, 피버 닭다리는 15개로 풍성하게 비산 (2번 룰 준수)
+    // 일반 상자는 깔끔하게 10개, 피버 닭다리는 조금 더 풍성한 15개 배정 (2번 룰 준수)
     const particleCount = isGold ? 15 : 10; 
     
-    // 아이템 성격에 따른 개별적인 피드백 컬러 구성
+    // 3단계 연출 대비: 아이템 무드 분리형 컬러 구성
     const colors = isGold 
       ? ['#FFD54F', '#FF8F00', '#FFEA00', '#FFFFFF'] // 피버 닭다리는 좀 더 액티브한 주황/불꽃색 배정
       : ['#FFE872', '#FFD54F', '#FFF9C4', '#FFFFFF']; // 일반 상자는 레퍼런스 스타일의 순수 황금빛
@@ -929,18 +933,16 @@
       
       playArea.appendChild(p);
       
-      // 구형 비산 시뮬레이션
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 1.6 + Math.random() * 3.2;
-      let vx = Math.cos(angle) * speed;
-      let vy = Math.sin(angle) * speed - 1.2; // 가벼운 수직 도약 바이어스
+      // ★ 수직 부유 연산: 좌우 비산력(vx)은 최소화하여 중심에 예쁘게 모이게 함
+      let vx = (Math.random() - 0.5) * 1.5; 
+      let vy = -1.2 - Math.random() * 1.8; // 부드럽게 위로 밀어 올리는 초기 속도
       let px = 0;
       let py = 0;
-      let gravity = 0.12;
+      let buoyancy = -0.15; // ★ 부력(음수의 중력 가속도)을 가해 하늘로 둥실 승천
       let opacity = 1.0;
       let scale = 1.0;
       
-      // 초단기 입자 수명 설계 (0.35s ~ 0.45s)로 빠른 소멸 유도 (1번 룰 준수)
+      // 초단기 입자 수명 설계 (0.35s ~ 0.45s)로 빠른 수집 완료 (1번 룰 준수)
       const startTime = performance.now();
       const lifetime = 350 + Math.random() * 100;
       
@@ -956,7 +958,7 @@
         scale = 1.0 - t * 0.6;
         
         px += vx;
-        vy += gravity;
+        vy += buoyancy; // 역중력 가속
         py += vy;
         
         p.style.transform = `translate3d(${px}px, ${py}px, 0) scale(${scale})`;
@@ -971,7 +973,7 @@
   function spawnPickupEffect(x, y, type) {
     const screenX = x - cameraX;
 
-    // fx_pickup.png 이미지가 회전하며 확 커졌다 기화되는 중심 파열 연출
+    // fx_pickup.png 이미지가 회전 폭발하지 않고, 둥글게 툭 터지듯 커지며 글리터를 방출하는 Twinkle 효과
     const fx = document.createElement('div');
     fx.className = 'pickupEffect';
     fx.style.left = screenX + 'px';
@@ -982,7 +984,7 @@
     playArea.appendChild(fx);
     setTimeout(()=>fx.remove(), 560);
 
-    // ★ 2단계 최종 연동: 상자와 닭다리 모두 번잡한 +1 텍스트를 전면 생략하고 황금빛 스파클링 가루만으로 피드백 제공
+    // ★ 2단계 수집 연동 분기 처리 (모두 +1 팝업 글자는 완전 생략)
     const isGold = (type === 'gold');
     spawnSparklingParticles(x, y, isGold);
   }
