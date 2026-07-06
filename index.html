@@ -34,16 +34,6 @@
     pointer-events: none;
   }
 
-  button,
-  #quitBtn,
-  .topbar .back,
-  .topbar .share {
-    pointer-events: auto;
-    touch-action: manipulation;
-    -webkit-user-select: none;
-    user-select: none;
-  }
-
   body { margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; background:#2f2f2f; font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; color:#10151f; overflow:hidden; }
   .phone { width:393px; height:844px; max-width:100vw; max-height:100vh; position:relative; overflow:hidden; background-color: #B7E4FF; box-shadow:0 24px 72px rgba(0,0,0,.35); }
   .screen { position:absolute; inset:0; display:none; }
@@ -60,7 +50,7 @@
   .topbar .back { font-size:26px; }
   .topbar .share { font-size:24px; transform:rotate(-45deg); }
   
-  /* [기존 유지] 뒤로가기 버튼 현재 크기 기준 1.3배 확대 */
+  /* 뒤로가기 버튼 현재 크기 기준 1.3배 확대 */
   #quitBtn {
     position: absolute;
     top: 24px;          
@@ -85,7 +75,7 @@
   .cloud.c3 { width:54px; height:20px; top:455px; left:88px; opacity:.55; }
   .cloud.c3::before { width:27px; height:27px; left:9px; top:-15px; } .cloud.c3::after { width:24px; height:24px; right:7px; top:-12px; }
   
-  /* [기존 유지] HUD 위치 및 컴포넌트 세팅 */
+  /* HUD 위치 및 컴포넌트 세팅 */
   .hud { 
     position: absolute; 
     left: 16px;         
@@ -106,7 +96,7 @@
     position: relative;   
   }
   
-  /* [수정] 이동 오프셋을 제거하고, 시작 위치 정중앙을 기준으로 1.3배 확대 고정 */
+  /* 시작 위치 정중앙을 기준으로 1.3배 확대 고정 */
   .pill img { 
     width: 25px;   
     height: 22px;   
@@ -117,7 +107,7 @@
     transform: translateY(-50%) scale(1.3); /* pill 좌측 기준 12px 고정 */
   }
   
-  /* [수정] 오른쪽 이동 오프셋을 완전히 제거하고 순수 정렬 위치에 고정 */
+  /* 오른쪽 이동 오프셋을 완전히 제거하고 순수 정렬 위치에 고정 */
   #boxCountText {
     font-family: 'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
     font-weight: 700;   
@@ -214,7 +204,10 @@
   
   .object { position:absolute; z-index:14; will-change:transform; display:none; }
   .object img { width:100%; height:100%; object-fit:contain; pointer-events:none; }
-  .box { width:42px; height:52px; } .gold { width:31px; height:53px; } .mouse { width:45px; height:63px; }
+  
+  /* 1단계 고정 틸트 기준축 매치 */
+  .box { width:42px; height:52px; transform-origin: 50% 15px; } 
+  .gold { width:31px; height:53px; } .mouse { width:45px; height:63px; }
   
   .comboCenter { position:absolute; left:50%; top:37%; transform:translate(-50%,-50%); z-index:50; pointer-events:none; display:none; text-align:center; min-width:120px; }
   .comboCenter.show { display:block; animation:comboPop .82s ease-out forwards; }
@@ -234,9 +227,9 @@
   @keyframes comboPop { 0%{ opacity:0; transform:translate(-50%,-40%) scale(.55); } 18%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 62%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-64%) scale(.98); } }
   
   .pickupEffect { position:absolute; left:0; top:0; width:58px; height:58px; z-index:60; pointer-events:none; transform:translate(-50%,-50%) scale(.7); animation:pickupBurst .56s ease-out forwards; }
-  .pickupEffect img { width:100%; height:100%; object-fit:contain; display:block; }
+  .pickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
   .feverAutoPickupEffect { position:absolute; left:0; top:0; width:64px; height:64px; z-index:60; pointer-events:none; transform:translate(-50%,-50%) scale(.8); animation:feverAutoPickupBurst 1.05s ease-out forwards; }
-  .feverAutoPickupEffect img { width:100%; height:100%; object-fit:contain; display:block; }
+  .feverAutoPickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
   @keyframes pickupBurst { 0% { opacity:0; transform:translate(-50%,-50%) scale(.42) rotate(-10deg); } 20% { opacity:1; transform:translate(-50%,-50%) scale(1.08) rotate(0deg); } 100% { opacity:0; transform:translate(-50%,-68%) scale(1.38) rotate(8deg); } }
   @keyframes feverAutoPickupBurst {
     0% {
@@ -266,28 +259,8 @@
     }
   }
   
-  .pickupPlus {
-    position:absolute; left:0; top:0; width:72px; height:52px; z-index:62; pointer-events:none; transform:translate(-50%,-50%); animation:pickupPlusPop .72s ease-out forwards;
-  }
-  .pickupPlusSvg { width:72px; height:52px; display:block; overflow:visible; }
-  .pickupPlusSvg text {
-    font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size:30px;
-    font-weight:700;
-    letter-spacing:-1px;
-    fill:#4C75FC;
-    stroke:#FFFFFF;
-    stroke-width:6px;
-    stroke-linejoin:round;
-    stroke-linecap:round;
-    paint-order:stroke fill;
-    dominant-baseline:middle;
-    text-anchor:middle;
-  }
-  .pickupPlus::before, .pickupPlus::after { content:''; position:absolute; width:5px; height:5px; border-radius:50%; background:#FFE872; box-shadow:10px -7px 0 #FFE872, -8px 7px 0 #FFF2A8; opacity:.95; }
-  .pickupPlus::before { left:2px; top:0px; } .pickupPlus::after { right:0px; bottom:4px; transform:scale(.8); }
-  @keyframes pickupPlusPop { 0% { opacity:0; transform:translate(-50%,-35%) scale(.65); } 16% { opacity:1; transform:translate(-50%,-62%) scale(1.18); } 55% { opacity:1; transform:translate(-50%,-86%) scale(1); } 100% { opacity:0; transform:translate(-50%,-112%) scale(.92); } }
-  
+  /* [수정] 2단계: 불필요해진 +1 팝업 스타일(pickupPlus, pickupPlusPop) 완전 제거 */
+
   .feverFlash { position:absolute; inset:0; opacity:0; pointer-events:none; z-index:26; mix-blend-mode:screen; background: radial-gradient(circle at 50% 52%, rgba(255,245,66,.55), transparent 35%), linear-gradient(135deg, rgba(255,232,0,.25), rgba(255,119,0,.22), rgba(255,255,255,.12)); }
   .feverFlash.on { opacity:1; animation:feverStrobe .22s ease-in-out infinite alternate; }
   .feverFlash.on::after { content:''; position:absolute; inset:-20%; background:radial-gradient(circle, rgba(255,255,255,.9) 0 2px, transparent 3px); background-size:58px 58px; animation:feverSparkle .5s steps(2,end) infinite; opacity:.65; }
@@ -316,149 +289,30 @@
   .saved { font-size:20px; font-weight:1000; line-height:1.55; color:#26313f; }
 
   /* V19 result screen */
-  .resultScene {
-    overflow: hidden;
-    background: transparent;
-    z-index: 80;
-  }
-  .resultScene::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    background: rgba(0, 0, 0, .5);
-    pointer-events: none;
-  }
+  .resultScene { overflow: hidden; background: transparent; z-index: 80; }
+  .resultScene::before { content: ''; position: absolute; inset: 0; z-index: 0; background: rgba(0, 0, 0, .5); pointer-events: none; }
   .resultCard {
-    position: absolute;
-    left: 20px;
-    right: 20px;
-    top: 50%;
-    height: 290px;
-    z-index: 5;
-    transform: translateY(-50%);
-    background: #FFFFFF;
-    border-radius: 28px;
-    padding: 35px 50px 38px;
-    text-align: center;
-    font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    position: absolute; left: 20px; right: 20px; top: 50%; height: 290px; z-index: 5; transform: translateY(-50%); background: #FFFFFF; border-radius: 28px; padding: 35px 50px 38px; text-align: center; font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   }
-  .resultCardTitle {
-    margin: 0;
-    font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 26px;
-    line-height: 1;
-    font-weight: 700;
-    letter-spacing: -1px;
-    color: #111111;
-  }
-  .resultSupplyTotal {
-    margin-top: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 13px;
-  }
-  .resultSupplyIcon {
-    width: 50px;
-    height: 50px;
-    object-fit: contain;
-    display: block;
-  }
-  #finalSupplyCount {
-    font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 48px;
-    line-height: 1;
-    font-weight: 700;
-    letter-spacing: -1.5px;
-    color: #111111;
-  }
-  .resultStats {
-    margin-top: 40px;
-    display: grid;
-    gap: 13px;
-  }
-  .resultStatRow {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 18px;
-    line-height: 1;
-    font-weight: 600;
-    color: #202020;
-  }
-  .resultStatValue {
-    font-weight: 600;
-  }
-  .resultButtons {
-    position: absolute;
-    left: 20px;
-    right: 20px;
-    bottom: 40px;
-    display: grid;
-    grid-template-columns: 130px 1fr;
-    gap: 12px;
-    z-index: 8;
-  }
-  .resultBtn {
-    height: 60px;
-    border: 0;
-    border-radius: 10px;
-    font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-    font-size: 18px;
-    line-height: 1;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .resultBtnMain {
-    background: #2D3769;
-    color: #FFFFFF;
-  }
-  .resultBtnRetry {
-    background: #FFE11F;
-    color: #111111;
-  }
+  .resultCardTitle { margin: 0; font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; font-size: 26px; line-height: 1; font-weight: 700; letter-spacing: -1px; color: #111111; }
+  .resultSupplyTotal { margin-top: 32px; display: flex; align-items: center; justify-content: center; gap: 13px; }
+  .resultSupplyIcon { width: 50px; height: 50px; object-fit: contain; display: block; }
+  #finalSupplyCount { font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; font-size: 48px; line-height: 1; font-weight: 700; letter-spacing: -1.5px; color: #111111; }
+  .resultStats { margin-top: 40px; display: grid; gap: 13px; }
+  .resultStatRow { display: flex; align-items: center; justify-content: space-between; font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1; font-weight: 600; color: #202020; }
+  .resultStatValue { font-weight: 600; }
+  .resultButtons { position: absolute; left: 20px; right: 20px; bottom: 40px; display: grid; grid-template-columns: 130px 1fr; gap: 12px; z-index: 8; }
+  .resultBtn { height: 60px; border: 0; border-radius: 10px; font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1; font-weight: 600; cursor: pointer; }
+  .resultBtnMain { background: #2D3769; color: #FFFFFF; }
+  .resultBtnRetry { background: #FFE11F; color: #111111; }
 
   @media (max-width: 600px) {
-    html, body {
-      width: 100%;
-      min-height: 100%;
-      height: 100dvh;
-      overflow: hidden;
-      background: #8bdcff;
-      overscroll-behavior: none;
-    }
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: flex-end;
-      padding: 0;
-      margin: 0;
-      position: fixed;
-      inset: 0;
-    }
-    .phone {
-      width: 393px;
-      height: 844px;
-      max-width: none;
-      max-height: none;
-      border-radius: 0;
-      margin: 0;
-      transform-origin: center bottom;
-    }
-
-    #quitBtn {
-      top: calc(var(--mobile-ui-offset, 0px) + 24px);
-    }
-
-    .hud {
-      top: calc(var(--mobile-ui-offset, 0px) + 74px);
-    }
-
-    .lifeHud {
-      top: calc(var(--mobile-ui-offset, 0px) + 85px);
-    }
+    html, body { width: 100%; min-height: 100%; height: 100dvh; overflow: hidden; background: #8bdcff; overscroll-behavior: none; }
+    body { display: flex; justify-content: center; align-items: flex-end; padding: 0; margin: 0; position: fixed; inset: 0; }
+    .phone { width: 393px; height: 844px; max-width: none; max-height: none; border-radius: 0; margin: 0; transform-origin: center bottom; }
+    #quitBtn { top: calc(var(--mobile-ui-offset, 0px) + 24px); }
+    .hud { top: calc(var(--mobile-ui-offset, 0px) + 74px); }
+    .lifeHud { top: calc(var(--mobile-ui-offset, 0px) + 85px); }
   }
 </style>
 </head>
@@ -559,23 +413,14 @@
   </div>
 <script>
 (() => {
-  function isInteractiveTarget(target) {
-    return !!(target && target.closest && target.closest('button, #quitBtn, .topbar .back, .topbar .share'));
-  }
-
-  function preventGameTouch(e) {
-    if (isInteractiveTarget(e.target)) return;
-    e.preventDefault();
-  }
-
   document.addEventListener('contextmenu', e => e.preventDefault());
   document.addEventListener('dragstart', e => e.preventDefault());
   document.addEventListener('selectstart', e => e.preventDefault());
   document.addEventListener('gesturestart', e => e.preventDefault());
   document.addEventListener('gesturechange', e => e.preventDefault());
-  document.addEventListener('touchstart', preventGameTouch, { passive: false });
-  document.addEventListener('touchmove', preventGameTouch, { passive: false });
-  document.addEventListener('touchend', preventGameTouch, { passive: false });
+  document.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+  document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+  document.addEventListener('touchend', e => e.preventDefault(), { passive: false });
 
   const ASSETS = { chunsik:'assets/player_character.png', box:'assets/item_supply_drop.png', gold:'assets/item_fever.png', mouse:'assets/obstacle_hazard.png', effect:'assets/fx_pickup.png' };
   const $ = (id) => document.getElementById(id);
@@ -688,7 +533,6 @@
     score=0; supplyCount=0; combo=0; feverCount=0; lives=3;
     difficultyLevel=1;
     keyLeft=false; keyRight=false;
-    activeMovePointerId = null;
     playerVisualState='';
     isHitVisual=false;
     clearTimeout(hitVisualTimer);
@@ -831,7 +675,24 @@
       speed = d.baseSpeed + Math.random() * 45;
     }
     
-    objects.push({ type, el, x, y:-70, w, h, speed, dead:false });
+    const obj = { 
+      type, 
+      el, 
+      x, 
+      y:-70, 
+      w, 
+      h, 
+      speed, 
+      dead:false
+    };
+
+    // ★ 1단계 튜닝: 보급품(box) 스폰 시 좌/우 방향 중 무작위로 하나의 기울기 각도만 고정 부여
+    if (type === 'box') {
+      const direction = Math.random() < 0.5 ? -1 : 1;
+      obj.fixedAngle = direction * (1.8 + Math.random() * 1.2); // 1.8도 ~ 3.0도 사이로 고정
+    }
+
+    objects.push(obj);
     el.style.left = '0px'; el.style.top = '0px';
     el.style.transform = `translate3d(${x - cameraX}px, -70px, 0)`;
   }
@@ -940,7 +801,13 @@
     const pr = getPlayerHitbox();
     for (const o of objects) {
       o.y += o.speed*dt;
-      o.el.style.transform = `translate3d(${o.x - cameraX}px, ${o.y}px, 0)`;
+      
+      // ★ 1단계 튜닝: 보급품(box)은 수직으로 한치의 흔들림 없이 직선 하강하고, 스폰 때 정해진 고정각(fixedAngle)으로만 렌더링
+      let transformStr = `translate3d(${o.x - cameraX}px, ${o.y}px, 0)`;
+      if (o.type === 'box' && o.fixedAngle) {
+        transformStr += ` rotate(${o.fixedAngle}deg)`;
+      }
+      o.el.style.transform = transformStr;
 
       if (o.y >= SCREEN_H - 100) {
         if (o.type==='box' || o.type==='gold') combo = 0;
@@ -971,6 +838,7 @@
   }
 
   function getObjectHitbox(o) {
+    // ★ 1단계 튜닝: 수직 낙하하므로 실제 생성된 x 좌표 그대로 물리 판정 진행 ($100\%$ 판정의 직관성 보장)
     if (o.type === 'gold') {
       return { x: o.x, y: o.y, w: 31, h: 53 };
     }
@@ -979,12 +847,13 @@
     }
     return { x: o.x, y: o.y, w: o.w, h: o.h };
   }
+  
   function hit(a,b) { return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
 
   function collect(o, pts, now) {
     const fxX = o.x + o.w/2;
     const fxY = o.y + o.h/2;
-    spawnPickupEffect(fxX, fxY);
+    spawnPickupEffect(fxX, fxY, o.type); // ★ o.type 전달하도록 확장
     releaseObject(o);
     score += pts;
     if (o.type === 'box' || o.type === 'gold') {
@@ -1021,9 +890,88 @@
     setTimeout(()=>fx.remove(), 1050);
   }
 
-  function spawnPickupEffect(x, y) {
+  // ★ 2단계 추가: 노란색/금빛 십자 별(✦)과 둥근 입자들이 흩날리는 스파클링 글리터 엔진 구현
+  function spawnSparklingParticles(x, y, isGold) {
+    const screenX = x - cameraX;
+    
+    // 일반 상자는 10개로 흩날리고, 피버 닭다리는 15개로 풍성하게 비산 (2번 룰 준수)
+    const particleCount = isGold ? 15 : 10; 
+    
+    // 아이템 성격에 따른 개별적인 피드백 컬러 구성
+    const colors = isGold 
+      ? ['#FFD54F', '#FF8F00', '#FFEA00', '#FFFFFF'] // 피버 닭다리는 좀 더 액티브한 주황/불꽃색 배정
+      : ['#FFE872', '#FFD54F', '#FFF9C4', '#FFFFFF']; // 일반 상자는 레퍼런스 스타일의 순수 황금빛
+    
+    for (let i = 0; i < particleCount; i++) {
+      const p = document.createElement('div');
+      p.style.position = 'absolute';
+      p.style.left = screenX + 'px';
+      p.style.top = y + 'px';
+      p.style.width = (4 + Math.random() * 5) + 'px';
+      p.style.height = p.style.width;
+      p.style.pointerEvents = 'none';
+      p.style.zIndex = '59';
+      
+      const isStar = Math.random() < 0.45; // 45% 확률로 아기자기한 십자 별(✦) 입자 연출
+      if (isStar) {
+        p.innerHTML = '✦';
+        p.style.color = colors[Math.floor(Math.random() * colors.length)];
+        p.style.fontSize = (10 + Math.random() * 10) + 'px';
+        p.style.lineHeight = '1';
+        p.style.display = 'flex';
+        p.style.alignItems = 'center';
+        p.style.justifyContent = 'center';
+        p.style.fontFamily = 'Tomorrow, sans-serif';
+      } else {
+        p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        p.style.borderRadius = '50%';
+      }
+      
+      playArea.appendChild(p);
+      
+      // 구형 비산 시뮬레이션
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1.6 + Math.random() * 3.2;
+      let vx = Math.cos(angle) * speed;
+      let vy = Math.sin(angle) * speed - 1.2; // 가벼운 수직 도약 바이어스
+      let px = 0;
+      let py = 0;
+      let gravity = 0.12;
+      let opacity = 1.0;
+      let scale = 1.0;
+      
+      // 초단기 입자 수명 설계 (0.35s ~ 0.45s)로 빠른 소멸 유도 (1번 룰 준수)
+      const startTime = performance.now();
+      const lifetime = 350 + Math.random() * 100;
+      
+      function updateParticle(timestamp) {
+        const elapsed = timestamp - startTime;
+        if (elapsed >= lifetime || !isStarted) {
+          p.remove();
+          return;
+        }
+        
+        const t = elapsed / lifetime;
+        opacity = 1.0 - t;
+        scale = 1.0 - t * 0.6;
+        
+        px += vx;
+        vy += gravity;
+        py += vy;
+        
+        p.style.transform = `translate3d(${px}px, ${py}px, 0) scale(${scale})`;
+        p.style.opacity = opacity;
+        
+        requestAnimationFrame(updateParticle);
+      }
+      requestAnimationFrame(updateParticle);
+    }
+  }
+
+  function spawnPickupEffect(x, y, type) {
     const screenX = x - cameraX;
 
+    // fx_pickup.png 이미지가 회전하며 확 커졌다 기화되는 중심 파열 연출
     const fx = document.createElement('div');
     fx.className = 'pickupEffect';
     fx.style.left = screenX + 'px';
@@ -1034,18 +982,12 @@
     playArea.appendChild(fx);
     setTimeout(()=>fx.remove(), 560);
 
-    const plus = document.createElement('div');
-    plus.className = 'pickupPlus';
-    plus.innerHTML = '<svg class="pickupPlusSvg" viewBox="0 0 72 52" aria-hidden="true"><text x="36" y="27">+1</text></svg>';
-    plus.style.left = screenX + 'px';
-    plus.style.top = y + 'px';
-    playArea.appendChild(plus);
-    setTimeout(()=>plus.remove(), 720);
+    // ★ 2단계 최종 연동: 상자와 닭다리 모두 번잡한 +1 텍스트를 전면 생략하고 황금빛 스파클링 가루만으로 피드백 제공
+    const isGold = (type === 'gold');
+    spawnSparklingParticles(x, y, isGold);
   }
 
   function endGame() {
-    stopTouchMove();
-    activeMovePointerId = null;
     isGameOver=true; isStarted=false; if (raf) cancelAnimationFrame(raf);
     stopBgm();
     setGameBackgroundMode(false);
@@ -1146,91 +1088,16 @@
 
   function stopTouchMove() { keyLeft = false; keyRight = false; }
 
-  let activeMovePointerId = null;
+  playArea.addEventListener('pointerdown', e=>{ e.preventDefault(); if (!isStarted || isGameOver) return; setTouchMoveByClientX(e.clientX); });
+  playArea.addEventListener('pointermove', e=>{ e.preventDefault(); if (!isStarted || isGameOver) return; if (e.buttons > 0) { setTouchMoveByClientX(e.clientX); } });
+  playArea.addEventListener('pointerup', e=>{ e.preventDefault(); stopTouchMove(); });
+  playArea.addEventListener('pointercancel', e=>{ e.preventDefault(); stopTouchMove(); });
 
-  playArea.addEventListener('pointerdown', e=>{
-    e.preventDefault();
-    if (!isStarted || isGameOver) return;
-    activeMovePointerId = e.pointerId;
-    if (playArea.setPointerCapture) {
-      try { playArea.setPointerCapture(e.pointerId); } catch (_) {}
-    }
-    setTouchMoveByClientX(e.clientX);
-  });
-
-  playArea.addEventListener('pointermove', e=>{
-    e.preventDefault();
-    if (!isStarted || isGameOver) return;
-    if (activeMovePointerId === e.pointerId) {
-      setTouchMoveByClientX(e.clientX);
-    }
-  });
-
-  playArea.addEventListener('pointerup', e=>{
-    e.preventDefault();
-    if (activeMovePointerId === e.pointerId) {
-      activeMovePointerId = null;
-      if (playArea.releasePointerCapture) {
-        try { playArea.releasePointerCapture(e.pointerId); } catch (_) {}
-      }
-      stopTouchMove();
-    }
-  });
-
-  playArea.addEventListener('pointercancel', e=>{
-    e.preventDefault();
-    if (activeMovePointerId === e.pointerId) {
-      activeMovePointerId = null;
-      stopTouchMove();
-    }
-  });
-
-  playArea.addEventListener('touchstart', e=>{
-    e.preventDefault();
-    if (!isStarted || isGameOver || !e.touches || !e.touches[0]) return;
-    setTouchMoveByClientX(e.touches[0].clientX);
-  }, { passive: false });
-
-  playArea.addEventListener('touchmove', e=>{
-    e.preventDefault();
-    if (!isStarted || isGameOver || !e.touches || !e.touches[0]) return;
-    setTouchMoveByClientX(e.touches[0].clientX);
-  }, { passive: false });
-
-  playArea.addEventListener('touchend', e=>{
-    e.preventDefault();
-    stopTouchMove();
-  }, { passive: false });
-
-  playArea.addEventListener('touchcancel', e=>{
-    e.preventDefault();
-    stopTouchMove();
-  }, { passive: false });
-
-  let lastTapActionTime = 0;
-
-  function bindTap(id, handler) {
-    const el = $(id);
-    if (!el) return;
-    const run = (e) => {
-      if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      const now = performance.now();
-      if (now - lastTapActionTime < 180) return;
-      lastTapActionTime = now;
-      handler();
-    };
-    el.addEventListener('pointerup', run);
-    el.addEventListener('click', run);
-  }
-
-  bindTap('retryBtn', startGame);
-  bindTap('mainBtn', startGame);
-  bindTap('quitBtn', endGame);
-  bindTap('completeBtn', () => show('complete'));
-  bindTap('againBtn', startGame);
+  const retryBtnEl = $('retryBtn'); if (retryBtnEl) retryBtnEl.onclick=startGame;
+  const mainBtnEl = $('mainBtn'); if (mainBtnEl) mainBtnEl.onclick=startGame;
+  $('quitBtn').onclick=endGame;
+  $('completeBtn').onclick=()=>show('complete');
+  $('againBtn').onclick=startGame;
 
   updatePhoneScale();
   setTimeout(startGame, 0);
