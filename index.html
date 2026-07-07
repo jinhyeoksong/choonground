@@ -194,7 +194,7 @@
   @keyframes levelUp { 0%{ transform:translateX(-50%) scale(.75); opacity:0; } 25%{ transform:translateX(-50%) scale(1.18); opacity:1; } 100%{ transform:translateX(-50%) scale(1); opacity:.9; } }
   @keyframes feverTextPop { 0%{ opacity:0; transform:translate(-50%,-42%) scale(.5); } 16%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 72%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-58%) scale(.96); } }
   
-  /* ★ [V73 조작 최적화] 플레이 조작계 영역 한정 iOS 돋보기/확대 비활성화 CSS 및 드래그 캡처 적용 */
+  /* ★ [V74 조작계] 모바일 제스처와 확대 간섭을 원천 방지하는 게임 구동용 안전 레이어 설정 */
   .playArea { 
     position:absolute; 
     inset:0; 
@@ -236,7 +236,7 @@
   .comboSvgText { font-size:25px; font-weight:700; stroke-width:6px; }
   @keyframes comboPop { 0%{ opacity:0; transform:translate(-50%,-40%) scale(.55); } 18%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 62%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-64%) scale(.98); } }
   
-  /* ★ [V73 튜닝] fx_pickup.png 월드 고정을 위한 래퍼(Wrapper) 뎁스 및 안심 스케일링 설정 */
+  /* ★ [V74 튜닝] fx_pickup.png의 획득한 지점 고정용 절대 래퍼(Wrapper) 구성 */
   .pickupEffectWrapper {
     position: absolute;
     left: 0;
@@ -247,18 +247,19 @@
     pointer-events: none;
     will-change: transform;
   }
+  /* 90px 규격 매칭 및 부드러운 가습 중심 소멸 */
   .pickupEffect { 
     position:absolute; 
-    left: -45px; /* 90px 절반 */
-    top: -45px; 
-    width:90px; 
-    height:90px; 
+    left: -45px; /* 90px 가로절반 보정 */
+    top: -45px; /* 90px 세로절반 보정 */
+    width: 90px; 
+    height: 90px; 
     pointer-events:none; 
     animation:pickupBurst 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; 
   }
   .pickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
   
-  /* 자동 수집 이펙트 월드 고정 래퍼 */
+  /* 피버 자동 수집용 독립 제자리 고정 래퍼 */
   .feverAutoPickupWrapper {
     position: absolute;
     left: 0;
@@ -287,26 +288,18 @@
     100% { opacity: 0; transform: scale(1.2); }
   }
   @keyframes feverAutoPickupBurst {
-    0% {
-      opacity: 0;
-      transform: scale(0.4);
-    }
-    35% {
-      opacity: 0.85;
-      transform: scale(1.1);
-    }
-    100% {
-      opacity: 0;
-      transform: scale(1.3);
-    }
+    0% { opacity: 0; transform: scale(0.4); }
+    35% { opacity: 0.85; transform: scale(1.1); }
+    100% { opacity: 0; transform: scale(1.3); }
   }
 
-  /* ★ [V73 제거 완료] 피버 모드 시 화면의 기분 나쁜 번쩍임(Strobe flicker)을 완벽히 소멸시키고 안락한 정적 그라데이션 광배만 남김 */
+  /* ★ [V74 완성] 피버 모드 시 요동치며 울컥이던 눈부신 깜빡거림 완전 격리 */
   .feverFlash { 
     position:absolute; inset:0; opacity:0; pointer-events:none; z-index:26; mix-blend-mode:screen; 
-    background: radial-gradient(circle at 50% 52%, rgba(255,245,66,.22), transparent 60%), linear-gradient(135deg, rgba(255,232,0,.15), rgba(255,119,0,.12), rgba(255,255,255,.05)); 
+    background: radial-gradient(circle at 50% 52%, rgba(255,245,66,.18), transparent 65%), linear-gradient(135deg, rgba(255,232,0,.12), rgba(255,119,0,.08), rgba(255,255,255,.03)); 
     transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
   }
+  /* animation 무력화 완료. 아늑하고 부드러운 전환만 보장 */
   .feverFlash.on { opacity:1; transition: none; }
   
   .skyCloud { position:absolute; left:0; top:0; pointer-events:none; z-index:4; opacity:.34; will-change:transform; }
@@ -922,56 +915,78 @@
   function spawnFeverAutoPickupEffect(x, y) {
     const screenX = x - cameraX;
 
+    const wrapper = document.createElement('div');
+    wrapper.className = 'feverAutoPickupWrapper';
+    playArea.appendChild(wrapper);
+
     const fx = document.createElement('div');
     fx.className = 'feverAutoPickupEffect';
-    fx.style.left = screenX + 'px';
-    fx.style.top = y + 'px';
     const img = document.createElement('img');
     img.src = ASSETS.effect;
     fx.appendChild(img);
-    playArea.appendChild(fx);
-    setTimeout(()=>fx.remove(), 1050);
+    wrapper.appendChild(fx);
+
+    // 월드 좌표 기준 고정 렌더링 루프 가동
+    const startTime = performance.now();
+    function updateAutoFx(timestamp) {
+      const elapsed = timestamp - startTime;
+      if (elapsed >= 850 || !isStarted) {
+        wrapper.remove();
+        return;
+      }
+      const curScreenX = x - cameraX;
+      wrapper.style.transform = `translate3d(${curScreenX}px, ${y}px, 0)`;
+      requestAnimationFrame(updateAutoFx);
+    }
+    requestAnimationFrame(updateAutoFx);
   }
 
-  // ★ [V71 튜닝] 4각 밝은 옐로우 ✦ 별 모양 단일 입자로 촤르륵 모션 트레일 구현
-  function spawnSparklingParticles(screenX, screenY) {
-    // 깔끔하면서도 풍성해 보이는 최적의 15개 꼬리 흩날림 연출
+  // ★ [V74 최종 완성] 첨부된 image_23f824.png 스타일의 둥글고 날렵한 뾰족 다이아몬드 별 SVG 렌더링 & 1.5배 확산 포물선 물리 설계
+  function spawnSparklingParticles(worldX, worldY) {
+    // 뭉치지 않게 화사하게 비산되는 최적의 15개 꼬리 흩날림 연출
     const particleCount = 15; 
-    const brightYellow = '#FFEA00'; 
-    const moveDir = player.dir; // -1: 왼쪽 진행, 1: 오른쪽 진행
-    
+    const brightYellow = '#F5F0CE'; // 피그마 규격 명품 미색 완벽 적용
+    const moveDir = player.dir; // -1: 왼쪽 진행, 1: 오른쪽 진행, 서있으면 0일 수도 있음
+
     for (let i = 0; i < particleCount; i++) {
       const p = document.createElement('div');
       p.style.position = 'absolute';
-      p.style.left = screenX + 'px';
-      p.style.top = screenY + 'px';
+      p.style.left = '0px';
+      p.style.top = '0px';
       p.style.pointerEvents = 'none';
-      p.style.zIndex = '16'; // 캐릭터(z-index: 18)의 뒤쪽 뎁스 레이어로 완벽 배치
-      
-      p.innerHTML = '✦'; // 단일 십자 별조각 통일
-      p.style.color = brightYellow;
-      p.style.fontSize = (11 + Math.random() * 8) + 'px'; // 아기자기하고 세련된 크기 분배
-      p.style.lineHeight = '1';
+      p.style.zIndex = '16'; // 캐릭터(z-index: 18)의 뒤쪽 뎁스 레이어로 배치
       p.style.display = 'flex';
       p.style.alignItems = 'center';
       p.style.justifyContent = 'center';
-      p.style.fontFamily = 'Tomorrow, sans-serif';
-      p.style.textShadow = '0 0 3px rgba(255, 234, 0, 0.85)'; // 영롱함을 배가시키는 고급 그림자 필터
+      p.style.willChange = 'transform';
+      
+      // 첨부된 프리미엄 다이아몬드 별 SVG 코드 직접 주입
+      const size = 11 + Math.random() * 8; // 세련되고 고운 크기 편차
+      p.innerHTML = `
+        <svg width="${size}" height="${size}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 2px rgba(245,240,206,0.75));">
+          <path d="M50 0C50 35 65 50 100 50C65 50 50 65 50 100C50 65 35 50 0 50C35 50 50 35 50 0Z" fill="${brightYellow}"/>
+        </svg>
+      `;
       
       playArea.appendChild(p);
       
-      // ★ 진행 방향 반대쪽으로 흐르게 만드는 물리 속도 지정 (v_x)
-      // 캐릭터가 가려는 방향의 정반대로 흩뿌려지며 고급스러운 바람 저항 흔적(Trail)을 생성합니다.
-      let vx = -moveDir * (1.8 + Math.random() * 3.6) + (Math.random() - 0.5) * 1.2;
-      let vy = (Math.random() - 0.5) * 2.2 - 0.5; // 자연스러운 수직 확산
+      // ★ 진행 방향 정반대 위 대각선 포물선 물리 세팅 & 기존 분산을 1.5배 넉넉하게 넓혀 벌어지는 부채꼴 꼬리 조성
+      const spreadMultiplier = 1.5;
       
-      let px = 0;
-      let py = 0;
+      // 가만히 서있을 때는 무작위 방향으로 반대 추진
+      const realDir = (moveDir === 0) ? (Math.random() < 0.5 ? -1 : 1) : moveDir;
+      
+      // 획득한 이동 방향의 대칭 뒤쪽으로 날려보내는 파워 궤적 계산
+      let vx = -realDir * (1.8 + Math.random() * 3.6) + (Math.random() - 0.5) * 1.8 * spreadMultiplier;
+      let vy = - (3.5 + Math.random() * 4.0) + (Math.random() - 0.5) * 2.5 * spreadMultiplier; // 반중력 도약력
+      
+      let relativeX = 0;
+      let relativeY = 0;
       let opacity = 1.0;
       let scale = 1.0;
       
       const startTime = performance.now();
-      const lifetime = 350 + Math.random() * 120; // 0.35초 ~ 0.47초간 매끄럽게 유지
+      const lifetime = 400 + Math.random() * 150; // 0.4초 ~ 0.55초간 매끄럽게 유지
       
       function updateParticle(timestamp) {
         const elapsed = timestamp - startTime;
@@ -982,16 +997,19 @@
         
         const t = elapsed / lifetime;
         opacity = 1.0 - t;
-        scale = 1.0 - t * 0.45;
+        scale = 1.0 - t * 0.4;
         
-        // 공기 저항 댐핑 계수를 부여해 부드러운 먼지처럼 뒤로 흩날리며 스러지게 만듦
-        vx *= 0.93;
-        vy *= 0.93;
+        // 정직한 마리오식 중력(gravity = 0.22) 공식 탑재
+        vy += 0.22;
         
-        px += vx;
-        py += vy;
+        relativeX += vx;
+        relativeY += vy;
         
-        p.style.transform = `translate3d(${px}px, ${py}px, 0) scale(${scale})`;
+        // 스크롤 카메라 x좌표를 프레임마다 실시간 가산하여 월드상에 완벽 보정 고정
+        const screenX = (worldX + relativeX) - cameraX;
+        const screenY = worldY + relativeY;
+        
+        p.style.transform = `translate3d(${screenX}px, ${screenY}px, 0) scale(${scale})`;
         p.style.opacity = opacity;
         
         requestAnimationFrame(updateParticle);
@@ -1001,24 +1019,44 @@
   }
 
   function spawnPickupEffect(x, y, type) {
-    // ★ [V71 튜닝] 획득 이펙트를 캐릭터의 정가운데(몸 중앙 가슴 부근) 스크린 좌표로 정렬 연출
+    // ★ [V74 최종 적용] 획득 시점의 춘식이 몸 정가운데(가슴 부근) 월드 절대 좌표 확보
     const scaleFactor = isFever ? 2 : 1;
-    const playerCenterX = player.x - cameraX;
-    const playerCenterY = (SCREEN_H - 42) - (player.h * scaleFactor) / 2;
+    const playerWorldCenterX = player.x;
+    const playerWorldCenterY = (SCREEN_H - 42) - (player.h * scaleFactor) / 2;
 
-    // fx_pickup.png 이미지가 부드럽고 가볍게 팝업되며 사라지는 Twinkle 링 연출 (뎁스 z-index: 17로 플레이어 뒤 배치)
+    // 월드 좌표에 정렬되는 래퍼 요소 동적 수동 제작 (움직이는 춘식이 몸에 종속되지 않고 그 지점에 고정)
+    const wrapper = document.createElement('div');
+    wrapper.className = 'pickupEffectWrapper';
+    playArea.appendChild(wrapper);
+
+    // 새 고해상도 리소스에 맞춘 90px x 90px 팝업 효과
     const fx = document.createElement('div');
     fx.className = 'pickupEffect';
-    fx.style.left = playerCenterX + 'px';
-    fx.style.top = y + 'px';
     const img = document.createElement('img');
     img.src = ASSETS.effect;
     fx.appendChild(img);
-    playArea.appendChild(fx);
-    setTimeout(()=>fx.remove(), 450);
+    wrapper.appendChild(fx);
 
-    // ★ 이펙트 가루 디자인(✦) 및 촤르륵 모션 트레일도 몸통 중앙에서부터 발원시킵니다.
-    spawnSparklingParticles(playerCenterX, playerCenterY);
+    // ★ 별가루의 발원지는 몸 중앙보다 살짝 위인 춘식이의 머리/이마 레벨로 튜닝
+    const pWorldY = playerWorldCenterY - 35;
+    spawnSparklingParticles(playerWorldCenterX, pWorldY);
+
+    // 래퍼를 0.7초 동안 춘식이가 이동하더라도 획득했던 월드 위치에 예쁘게 고정 렌더링
+    const startTime = performance.now();
+    const duration = 700; // V74 개선안: 총 0.7초 연장 노출 보장
+
+    function updatePickupWrapper(timestamp) {
+      const elapsed = timestamp - startTime;
+      if (elapsed >= duration || !isStarted) {
+        wrapper.remove();
+        return;
+      }
+      // 매 프레임 카메라 스크롤 가중치를 동적으로 빼서 월드 고정 위치 연출
+      const curScreenX = playerWorldCenterX - cameraX;
+      wrapper.style.transform = `translate3d(${curScreenX}px, ${playerWorldCenterY}px, 0)`;
+      requestAnimationFrame(updatePickupWrapper);
+    }
+    requestAnimationFrame(updatePickupWrapper);
   }
 
   function endGame() {
@@ -1113,54 +1151,70 @@
     if (e.key==='ArrowRight'||e.key==='d'||e.key==='D') keyRight=false;
   });
 
-  // ★ [안심 수정: Bug 1 해결] 드래그 잠금 및 조작계 원천 수술
-  let activePointerId = null; // 독점 추적할 마스터 포인터 ID
+  // ★ [V74 최적화] 지연시간 제로! 양손 엇갈림 무빙을 지원하는 멀티터치 실시간 큐 매핑 조작계
+  const activePointers = {};
 
-  function setTouchMoveByClientX(clientX) {
-    if (!isStarted || isGameOver) return;
+  function updateMovementFromPointers() {
+    const ids = Object.keys(activePointers);
+    if (ids.length === 0) {
+      keyLeft = false;
+      keyRight = false;
+      return;
+    }
+    // 가장 마지막으로 터치 제어 중인 활성 손가락 좌표를 최우선 순위로 매칭
+    const lastId = ids[ids.length - 1];
+    const clientX = activePointers[lastId];
+    
     const rect = phoneEl.getBoundingClientRect();
     const midX = rect.left + rect.width / 2;
-    if (clientX < midX) { keyLeft = true; keyRight = false; } else { keyLeft = false; keyRight = true; }
+    if (clientX < midX) {
+      keyLeft = true;
+      keyRight = false;
+    } else {
+      keyLeft = false;
+      keyRight = true;
+    }
   }
 
-  function stopTouchMove() { keyLeft = false; keyRight = false; }
-
-  // playArea 레이어에서만 터치 이벤트를 캡처하고 단일 포인터 고정 방식을 사용합니다.
-  playArea.addEventListener('pointerdown', e=>{
+  // 플레이 영역 내부에서만 동작하여 결과 화면/메뉴의 탭 및 드래그, 버튼 작동은 100% 온전하게 보장
+  playArea.addEventListener('pointerdown', e => {
     e.preventDefault();
     if (!isStarted || isGameOver) return;
-    // 첫 손가락 터치만 수용하고 세컨드 터치는 완전 무시 (멀티터치 리셋 버그 완벽 차단)
-    if (activePointerId === null) {
-      activePointerId = e.pointerId;
-      setTouchMoveByClientX(e.clientX);
-    }
+    activePointers[e.pointerId] = e.clientX;
+    updateMovementFromPointers();
   });
 
-  playArea.addEventListener('pointermove', e=>{
+  playArea.addEventListener('pointermove', e => {
     e.preventDefault();
     if (!isStarted || isGameOver) return;
-    // 현재 활성화된 마스터 포인터의 드래그 좌표만 신뢰 (e.buttons 검사를 생략하여 전 기기 호환성 확보)
-    if (e.pointerId === activePointerId) {
-      setTouchMoveByClientX(e.clientX);
+    if (activePointers[e.pointerId] !== undefined) {
+      activePointers[e.pointerId] = e.clientX;
+      updateMovementFromPointers();
     }
   });
 
-  playArea.addEventListener('pointerup', e=>{
+  playArea.addEventListener('pointerup', e => {
     e.preventDefault();
-    // 활성 포인터가 떼어졌을 때만 정직하게 멈춤
-    if (e.pointerId === activePointerId) {
-      activePointerId = null;
-      stopTouchMove();
-    }
+    delete activePointers[e.pointerId];
+    updateMovementFromPointers();
   });
 
-  playArea.addEventListener('pointercancel', e=>{
+  playArea.addEventListener('pointercancel', e => {
     e.preventDefault();
-    if (e.pointerId === activePointerId) {
-      activePointerId = null;
-      stopTouchMove();
-    }
+    delete activePointers[e.pointerId];
+    updateMovementFromPointers();
   });
+
+  // ★ [V74 최적화] 사파리 및 iOS 인앱 웹뷰 더블탭 화면 확대/돋보기 간섭 원천 무력화 방패
+  let lastTouchTime = 0;
+  playArea.addEventListener('touchstart', e => {
+    const now = Date.now();
+    // 300ms 이내의 더블 탭 제스처 수신 시, 사파리 확대 이벤트를 강제로 예방 차단
+    if (now - lastTouchTime < 300) {
+      e.preventDefault();
+    }
+    lastTouchTime = now;
+  }, { passive: false });
 
   const retryBtnEl = $('retryBtn'); if (retryBtnEl) retryBtnEl.onclick=startGame;
   const mainBtnEl = $('mainBtn'); if (mainBtnEl) mainBtnEl.onclick=startGame;
