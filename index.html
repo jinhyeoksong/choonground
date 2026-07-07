@@ -228,48 +228,43 @@
   .comboSvgText { font-size:25px; font-weight:700; stroke-width:6px; }
   @keyframes comboPop { 0%{ opacity:0; transform:translate(-50%,-40%) scale(.55); } 18%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 62%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-64%) scale(.98); } }
   
-  /* ★ [V70 수정] fx_pickup.png 이펙트 규격 64x64 및 캐릭터 뒤 레이어로 전면 패치 (z-index: 17) */
+  /* ★ [V71 튜닝] fx_pickup.png 규격 64x64 보장 및 캐릭터 바로 뒤쪽 레이어 배치 (z-index: 17) */
   .pickupEffect { position:absolute; left:0; top:0; width:64px; height:64px; z-index:17; pointer-events:none; transform:translate(-50%,-50%) scale(.7); animation:pickupBurst 0.45s ease-out forwards; }
   .pickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
-  .feverAutoPickupEffect { position:absolute; left:0; top:0; width:64px; height:64px; z-index:16; pointer-events:none; transform:translate(-50%,-50%) scale(.8); animation:feverAutoPickupBurst 1.05s ease-out forwards; }
+  
+  /* ★ [V71 튜닝] 자동 수집 이펙트가 갑자기 팍 뜨는 이질감을 걷어내고 부드럽게 사르륵 녹아 기화하는 모션으로 전면 개선 */
+  .feverAutoPickupEffect { position:absolute; left:0; top:0; width:64px; height:64px; z-index:16; pointer-events:none; transform:translate(-50%,-50%) scale(.8); animation:feverAutoPickupBurst 0.85s ease-out forwards; }
   .feverAutoPickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
+  
   @keyframes pickupBurst {
-    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
-    25% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+    30% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
     100% { opacity: 0; transform: translate(-50%, -50%) scale(1.35); }
   }
   @keyframes feverAutoPickupBurst {
     0% {
-      opacity:0;
-      transform:translate(-50%,-50%) scale(.95);
-      filter:brightness(1.2);
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.4);
     }
-    12% {
-      opacity:1;
-      transform:translate(-50%,-50%) scale(1);
-      filter:brightness(1.9);
-    }
-    45% {
-      opacity:1;
-      transform:translate(-50%,-56%) scale(1.02);
-      filter:brightness(1.45);
-    }
-    75% {
-      opacity:.65;
-      transform:translate(-50%,-68%) scale(1.04);
-      filter:brightness(1.15);
+    35% {
+      opacity: 0.85;
+      transform: translate(-50%, -50%) scale(1.1);
     }
     100% {
-      opacity:0;
-      transform:translate(-50%,-82%) scale(1.06);
-      filter:brightness(1);
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(1.3);
     }
   }
 
-  .feverFlash { position:absolute; inset:0; opacity:0; pointer-events:none; z-index:26; mix-blend-mode:screen; background: radial-gradient(circle at 50% 52%, rgba(255,245,66,.55), transparent 35%), linear-gradient(135deg, rgba(255,232,0,.25), rgba(255,119,0,.22), rgba(255,255,255,.12)); }
-  .feverFlash.on { opacity:1; animation:feverStrobe .22s ease-in-out infinite alternate; }
-  .feverFlash.on::after { content:''; position:absolute; inset:-20%; background:radial-gradient(circle, rgba(255,255,255,.9) 0 2px, transparent 3px); background-size:58px 58px; animation:feverSparkle .5s steps(2,end) infinite; opacity:.65; }
-  @keyframes feverStrobe { from{ opacity:.18; filter:saturate(1.1) brightness(1); } to{ opacity:.58; filter:saturate(1.65) brightness(1.18); } }
+  /* ★ [V71 튜닝] 피버 종료 시 푸른 하늘로 부드럽게 사르륵 걷히는 페이드 아웃 연출 (0.8s 트랜지션 탑재) */
+  .feverFlash { 
+    position:absolute; inset:0; opacity:0; pointer-events:none; z-index:26; mix-blend-mode:screen; 
+    background: radial-gradient(circle at 50% 52%, rgba(255,245,66,.52), transparent 55%), linear-gradient(135deg, rgba(255,232,0,.22), rgba(255,119,0,.18), rgba(255,255,255,.1)); 
+    transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+  .feverFlash.on { opacity:1; animation:feverStrobe .22s ease-in-out infinite alternate; transition: none; }
+  .feverFlash.on::after { content:''; position:absolute; inset:-20%; background:radial-gradient(circle, rgba(255,255,255,.9) 0 2px, transparent 3px); background-size:58px 58px; animation:feverSparkle .5s steps(2,end) infinite; opacity:.5; }
+  @keyframes feverStrobe { from{ opacity:.15; filter:saturate(1.1) brightness(1); } to{ opacity:.48; filter:saturate(1.45) brightness(1.12); } }
   @keyframes feverSparkle { 0%{ transform:translate(0,0) scale(1); } 100%{ transform:translate(22px,18px) scale(1.04); } }
   
   .skyCloud { position:absolute; left:0; top:0; pointer-events:none; z-index:4; opacity:.34; will-change:transform; }
@@ -593,7 +588,7 @@
     clearTimeout(feverNoticeTimer);
     feverNoticeTimer = setTimeout(()=>{ isFeverNoticeActive = false; }, 1050);
 
-    feverBadge.classList.add('on'); feverFlash.classList.remove('on');
+    feverBadge.classList.add('on'); feverFlash.classList.add('on');
     setBgmFever(true);
     playFeverSfx();
   }
@@ -608,7 +603,11 @@
       levelBadge.classList.add('up');
     }
     nextFeverAllowedTime = now + 8000;
-    feverBadge.classList.remove('on'); feverFlash.classList.remove('on');
+    feverBadge.classList.remove('on'); 
+    
+    // ★ [V71 튜닝] 기믹 제거시 팍 끊기지 않고 트랜지션 페이드 아웃을 발동시킴
+    feverFlash.classList.remove('on');
+    
     isFeverNoticeActive = false;
     clearTimeout(feverNoticeTimer);
     setBgmFever(false);
@@ -892,40 +891,37 @@
     setTimeout(()=>fx.remove(), 1050);
   }
 
-  // ★ [V70 최적화] 십자 별(✦) 입자가 진행 방향의 뒤쪽 레이어에서 반대쪽으로 흐르는 촤르륵 잔상 효과
-  function spawnSparklingParticles(x, y) {
-    const screenX = x - cameraX;
-    
-    // 심플하고 깨끗한 무드를 만들기 위한 최적의 수량 통일
-    const particleCount = 12; 
-    const brightYellow = '#FFEA00'; // 영롱하고 화사한 단일 밝은 옐로우 톤 적용
-    
-    // 춘식이의 현재 고유 진행 방향 확인 (dir: -1은 왼쪽, 1은 오른쪽)
-    const moveDir = player.dir;
+  // ★ [V71 튜닝] 4각 밝은 옐로우 ✦ 별 모양 단일 입자로 촤르륵 모션 트레일 구현
+  function spawnSparklingParticles(screenX, screenY) {
+    // 깔끔하면서도 풍성해 보이는 최적의 15개 꼬리 흩날림 연출
+    const particleCount = 15; 
+    const brightYellow = '#FFEA00'; 
+    const moveDir = player.dir; // -1: 왼쪽 진행, 1: 오른쪽 진행
     
     for (let i = 0; i < particleCount; i++) {
       const p = document.createElement('div');
       p.style.position = 'absolute';
       p.style.left = screenX + 'px';
-      p.style.top = y + 'px';
+      p.style.top = screenY + 'px';
       p.style.pointerEvents = 'none';
-      p.style.zIndex = '16'; // 캐릭터(z-index: 18)의 뒤쪽 뎁스 레이어로 배치
+      p.style.zIndex = '16'; // 캐릭터(z-index: 18)의 뒤쪽 뎁스 레이어로 완벽 배치
       
-      p.innerHTML = '✦'; // 단일 십자 별조각으로 통일
+      p.innerHTML = '✦'; // 단일 십자 별조각 통일
       p.style.color = brightYellow;
-      p.style.fontSize = (11 + Math.random() * 8) + 'px'; // 세련되고 고운 크기
+      p.style.fontSize = (11 + Math.random() * 8) + 'px'; // 아기자기하고 세련된 크기 분배
       p.style.lineHeight = '1';
       p.style.display = 'flex';
       p.style.alignItems = 'center';
       p.style.justifyContent = 'center';
       p.style.fontFamily = 'Tomorrow, sans-serif';
+      p.style.textShadow = '0 0 3px rgba(255, 234, 0, 0.85)'; // 영롱함을 배가시키는 고급 그림자 필터
       
       playArea.appendChild(p);
       
       // ★ 진행 방향 반대쪽으로 흐르게 만드는 물리 속도 지정 (v_x)
-      // 춘식이가 가려는 방향의 역방향으로 날려보내 아름다운 운동 꼬리(Trail)를 생성합니다.
-      let vx = -moveDir * (1.6 + Math.random() * 3.4) + (Math.random() - 0.5) * 1.0;
-      let vy = (Math.random() - 0.5) * 2.0 - 0.4; // 약간의 수직 흩날림 변이 부여
+      // 캐릭터가 가려는 방향의 정반대로 흩뿌려지며 고급스러운 바람 저항 흔적(Trail)을 생성합니다.
+      let vx = -moveDir * (1.8 + Math.random() * 3.6) + (Math.random() - 0.5) * 1.2;
+      let vy = (Math.random() - 0.5) * 2.2 - 0.5; // 자연스러운 수직 확산
       
       let px = 0;
       let py = 0;
@@ -933,7 +929,7 @@
       let scale = 1.0;
       
       const startTime = performance.now();
-      const lifetime = 320 + Math.random() * 120; // 0.32초 ~ 0.44초간 매끄럽게 유지
+      const lifetime = 350 + Math.random() * 120; // 0.35초 ~ 0.47초간 매끄럽게 유지
       
       function updateParticle(timestamp) {
         const elapsed = timestamp - startTime;
@@ -946,9 +942,9 @@
         opacity = 1.0 - t;
         scale = 1.0 - t * 0.45;
         
-        // 공기 저항 댐핑값을 부여해 부드러운 먼지처럼 뒤로 흩날리며 사라지게 만듦
-        vx *= 0.94;
-        vy *= 0.94;
+        // 공기 저항 댐핑 계수를 부여해 부드러운 먼지처럼 뒤로 흩날리며 스러지게 만듦
+        vx *= 0.93;
+        vy *= 0.93;
         
         px += vx;
         py += vy;
@@ -963,21 +959,24 @@
   }
 
   function spawnPickupEffect(x, y, type) {
-    const screenX = x - cameraX;
+    // ★ [V71 튜닝] 획득 이펙트를 캐릭터의 정가운데(몸 중앙 가슴 부근) 스크린 좌표로 정렬 연출
+    const scaleFactor = isFever ? 2 : 1;
+    const playerCenterX = player.x - cameraX;
+    const playerCenterY = (SCREEN_H - 42) - (player.h * scaleFactor) / 2;
 
     // fx_pickup.png 이미지가 부드럽고 가볍게 팝업되며 사라지는 Twinkle 링 연출 (뎁스 z-index: 17로 플레이어 뒤 배치)
     const fx = document.createElement('div');
     fx.className = 'pickupEffect';
-    fx.style.left = screenX + 'px';
-    fx.style.top = y + 'px';
+    fx.style.left = playerCenterX + 'px';
+    fx.style.top = playerCenterY + 'px';
     const img = document.createElement('img');
     img.src = ASSETS.effect;
     fx.appendChild(img);
     playArea.appendChild(fx);
     setTimeout(()=>fx.remove(), 450);
 
-    // 상자 및 골드 모두 동일한 모션 트레일 이펙트 출력 (+1 팝업 차단 유지)
-    spawnSparklingParticles(x, y);
+    // ★ 이펙트 가루 디자인(✦) 및 촤르륵 모션 트레일도 몸통 중앙에서부터 발원시킵니다.
+    spawnSparklingParticles(playerCenterX, playerCenterY);
   }
 
   function endGame() {
