@@ -236,7 +236,7 @@
   .comboSvgText { font-size:25px; font-weight:700; stroke-width:6px; }
   @keyframes comboPop { 0%{ opacity:0; transform:translate(-50%,-40%) scale(.55); } 18%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 62%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-64%) scale(.98); } }
   
-  /* ★ [V74 튜닝] fx_pickup.png의 획득한 지점 고정용 절대 래퍼(Wrapper) 구성 */
+  /* ★ [V75 튜닝] fx_pickup.png 월드 제자리 고정용 래퍼 */
   .pickupEffectWrapper {
     position: absolute;
     left: 0;
@@ -247,7 +247,7 @@
     pointer-events: none;
     will-change: transform;
   }
-  /* 90px 규격 매칭 및 부드러운 가습 중심 소멸 */
+  /* ★ [V75 튜닝] 유지 및 페이드 시간을 50% 단축한 0.35s 팝업 애니메이션 */
   .pickupEffect { 
     position:absolute; 
     left: -45px; /* 90px 가로절반 보정 */
@@ -255,7 +255,7 @@
     width: 90px; 
     height: 90px; 
     pointer-events:none; 
-    animation:pickupBurst 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards; 
+    animation:pickupBurst 0.35s cubic-bezier(0.25, 1, 0.5, 1) forwards; 
   }
   .pickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
   
@@ -270,6 +270,7 @@
     pointer-events: none;
     will-change: transform;
   }
+  /* ★ [V75 튜닝] 자동 획득용 이펙트는 직접 획득(0.35s)보다 훨씬 빠른 0.22s 울트라 패스트 모션으로 차별화 */
   .feverAutoPickupEffect { 
     position:absolute; 
     left: -32px;
@@ -277,29 +278,38 @@
     width:64px; 
     height:64px; 
     pointer-events:none; 
-    animation:feverAutoPickupBurst 0.85s ease-out forwards; 
+    animation:feverAutoPickupBurst 0.22s ease-out forwards; 
   }
   .feverAutoPickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
   
   @keyframes pickupBurst {
     0% { opacity: 0; transform: scale(0.3); }
-    15% { opacity: 1; transform: scale(1.1); }
+    30% { opacity: 1; transform: scale(1.1); }
     80% { opacity: 1; transform: scale(0.96); }
     100% { opacity: 0; transform: scale(1.2); }
   }
+  /* 0.22s 만에 번쩍하고 즉시 부드럽게 기화하여 소멸하는 초고속 연출 */
   @keyframes feverAutoPickupBurst {
-    0% { opacity: 0; transform: scale(0.4); }
-    35% { opacity: 0.85; transform: scale(1.1); }
-    100% { opacity: 0; transform: scale(1.3); }
+    0% {
+      opacity: 0;
+      transform: scale(0.2);
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1.0);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.15);
+    }
   }
 
-  /* ★ [V74 완성] 피버 모드 시 요동치며 울컥이던 눈부신 깜빡거림 완전 격리 */
+  /* ★ [V75 튜닝] 뎁스(z-index)를 11로 낮추어, 산/구름 배경은 예쁘게 그라데이션하되 춘식이 캐릭터(z-index: 18)의 고유 컬러는 절대로 간섭하지 않도록 정밀 수정 */
   .feverFlash { 
-    position:absolute; inset:0; opacity:0; pointer-events:none; z-index:26; mix-blend-mode:screen; 
+    position:absolute; inset:0; opacity:0; pointer-events:none; z-index:11; mix-blend-mode:screen; 
     background: radial-gradient(circle at 50% 52%, rgba(255,245,66,.18), transparent 65%), linear-gradient(135deg, rgba(255,232,0,.12), rgba(255,119,0,.08), rgba(255,255,255,.03)); 
     transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
   }
-  /* animation 무력화 완료. 아늑하고 부드러운 전환만 보장 */
   .feverFlash.on { opacity:1; transition: none; }
   
   .skyCloud { position:absolute; left:0; top:0; pointer-events:none; z-index:4; opacity:.34; will-change:transform; }
@@ -640,7 +650,7 @@
     nextFeverAllowedTime = now + 8000;
     feverBadge.classList.remove('on'); 
     
-    // ★ [V71 튜닝] 기믹 제거시 팍 끊기지 않고 트랜지션 페이드 아웃을 발동시킴
+    // ★ 기믹 제거시 팍 끊기지 않고 트랜지션 페이드 아웃을 발동시킴
     feverFlash.classList.remove('on');
     
     isFeverNoticeActive = false;
@@ -853,7 +863,7 @@
 
       if (o.y < 50) continue;
 
-      const or = getObjectHitbox(o);
+      const or = getObjectHidebox = getObjectHitbox(o);
 
       if (hit(pr,or)) {
         if (o.type==='box') collect(o, 10, now);
@@ -912,9 +922,8 @@
     clearTimeout(comboTimer); comboTimer=setTimeout(()=>comboCenter.classList.remove('show'),720);
   }
 
+  // ★ [V75 최종형] 피버 종료 시 초고속 0.22초 sparkle 연출과 월드 제자리 고정 처리
   function spawnFeverAutoPickupEffect(x, y) {
-    const screenX = x - cameraX;
-
     const wrapper = document.createElement('div');
     wrapper.className = 'feverAutoPickupWrapper';
     playArea.appendChild(wrapper);
@@ -928,9 +937,11 @@
 
     // 월드 좌표 기준 고정 렌더링 루프 가동
     const startTime = performance.now();
+    const duration = 220; // 직접 획득과 다른 초고속 스노우 twinkle용 220ms 수명 적용
+
     function updateAutoFx(timestamp) {
       const elapsed = timestamp - startTime;
-      if (elapsed >= 850 || !isStarted) {
+      if (elapsed >= duration || !isStarted) {
         wrapper.remove();
         return;
       }
@@ -941,12 +952,11 @@
     requestAnimationFrame(updateAutoFx);
   }
 
-  // ★ [V74 최종 완성] 첨부된 image_23f824.png 스타일의 둥글고 날렵한 뾰족 다이아몬드 별 SVG 렌더링 & 1.5배 확산 포물선 물리 설계
+  // ★ [V75 최종형] 프리미엄 다이아몬드 별 SVG 렌더링 & 1.5배 부채꼴 포물선 물리 설계
   function spawnSparklingParticles(worldX, worldY) {
-    // 뭉치지 않게 화사하게 비산되는 최적의 15개 꼬리 흩날림 연출
     const particleCount = 15; 
-    const brightYellow = '#F5F0CE'; // 피그마 규격 명품 미색 완벽 적용
-    const moveDir = player.dir; // -1: 왼쪽 진행, 1: 오른쪽 진행, 서있으면 0일 수도 있음
+    const brightYellow = '#F5F0CE'; // 피그마 미색 완벽 고정
+    const moveDir = player.dir;
 
     for (let i = 0; i < particleCount; i++) {
       const p = document.createElement('div');
@@ -954,14 +964,13 @@
       p.style.left = '0px';
       p.style.top = '0px';
       p.style.pointerEvents = 'none';
-      p.style.zIndex = '16'; // 캐릭터(z-index: 18)의 뒤쪽 뎁스 레이어로 배치
+      p.style.zIndex = '16'; 
       p.style.display = 'flex';
       p.style.alignItems = 'center';
       p.style.justifyContent = 'center';
       p.style.willChange = 'transform';
       
-      // 첨부된 프리미엄 다이아몬드 별 SVG 코드 직접 주입
-      const size = 11 + Math.random() * 8; // 세련되고 고운 크기 편차
+      const size = 11 + Math.random() * 8; 
       p.innerHTML = `
         <svg width="${size}" height="${size}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 2px rgba(245,240,206,0.75));">
           <path d="M50 0C50 35 65 50 100 50C65 50 50 65 50 100C50 65 35 50 0 50C35 50 50 35 50 0Z" fill="${brightYellow}"/>
@@ -970,15 +979,11 @@
       
       playArea.appendChild(p);
       
-      // ★ 진행 방향 정반대 위 대각선 포물선 물리 세팅 & 기존 분산을 1.5배 넉넉하게 넓혀 벌어지는 부채꼴 꼬리 조성
       const spreadMultiplier = 1.5;
-      
-      // 가만히 서있을 때는 무작위 방향으로 반대 추진
       const realDir = (moveDir === 0) ? (Math.random() < 0.5 ? -1 : 1) : moveDir;
       
-      // 획득한 이동 방향의 대칭 뒤쪽으로 날려보내는 파워 궤적 계산
       let vx = -realDir * (1.8 + Math.random() * 3.6) + (Math.random() - 0.5) * 1.8 * spreadMultiplier;
-      let vy = - (3.5 + Math.random() * 4.0) + (Math.random() - 0.5) * 2.5 * spreadMultiplier; // 반중력 도약력
+      let vy = - (3.5 + Math.random() * 4.0) + (Math.random() - 0.5) * 2.5 * spreadMultiplier; 
       
       let relativeX = 0;
       let relativeY = 0;
@@ -986,7 +991,7 @@
       let scale = 1.0;
       
       const startTime = performance.now();
-      const lifetime = 400 + Math.random() * 150; // 0.4초 ~ 0.55초간 매끄럽게 유지
+      const lifetime = 400 + Math.random() * 150; 
       
       function updateParticle(timestamp) {
         const elapsed = timestamp - startTime;
@@ -999,13 +1004,11 @@
         opacity = 1.0 - t;
         scale = 1.0 - t * 0.4;
         
-        // 정직한 마리오식 중력(gravity = 0.22) 공식 탑재
         vy += 0.22;
         
         relativeX += vx;
         relativeY += vy;
         
-        // 스크롤 카메라 x좌표를 프레임마다 실시간 가산하여 월드상에 완벽 보정 고정
         const screenX = (worldX + relativeX) - cameraX;
         const screenY = worldY + relativeY;
         
@@ -1018,18 +1021,23 @@
     }
   }
 
+  // ★ [V75 최종형] 획득 이펙트를 Player가 아닌 상자가 충돌해 사라진 제자리(World X, Y)에 고정
+  // 1번 수정 피드백 완벽 적용: 춘식이가 획득했을 때 별가루가 시작되는 정확한 위치(머리/이마 레벨)로 fx_pickup.png를 일치시킵니다!
   function spawnPickupEffect(x, y, type) {
-    // ★ [V74 최종 적용] 획득 시점의 춘식이 몸 정가운데(가슴 부근) 월드 절대 좌표 확보
     const scaleFactor = isFever ? 2 : 1;
     const playerWorldCenterX = player.x;
     const playerWorldCenterY = (SCREEN_H - 42) - (player.h * scaleFactor) / 2;
 
-    // 월드 좌표에 정렬되는 래퍼 요소 동적 수동 제작 (움직이는 춘식이 몸에 종속되지 않고 그 지점에 고정)
+    // ★ 별가루가 뿜어져 나오기 시작하는 바로 그 '머리/이마 레벨'의 정확한 월드 좌표 계산
+    const spawnWorldX = playerWorldCenterX;
+    const spawnWorldY = playerWorldCenterY - 35; 
+
+    // 절대 좌표용 래퍼 요소 획득
     const wrapper = document.createElement('div');
     wrapper.className = 'pickupEffectWrapper';
     playArea.appendChild(wrapper);
 
-    // 새 고해상도 리소스에 맞춘 90px x 90px 팝업 효과
+    // 0.35초(350ms)로 축소하여 쫀득한 타격 속도감 확보
     const fx = document.createElement('div');
     fx.className = 'pickupEffect';
     const img = document.createElement('img');
@@ -1037,13 +1045,11 @@
     fx.appendChild(img);
     wrapper.appendChild(fx);
 
-    // ★ 별가루의 발원지는 몸 중앙보다 살짝 위인 춘식이의 머리/이마 레벨로 튜닝
-    const pWorldY = playerWorldCenterY - 35;
-    spawnSparklingParticles(playerWorldCenterX, pWorldY);
+    // ★ 별가루 이펙트와 fx_pickup.png 섬광이 정확히 같은 높이(spawnWorldY)에서 정렬되어 터집니다!
+    spawnSparklingParticles(spawnWorldX, spawnWorldY);
 
-    // 래퍼를 0.7초 동안 춘식이가 이동하더라도 획득했던 월드 위치에 예쁘게 고정 렌더링
     const startTime = performance.now();
-    const duration = 700; // V74 개선안: 총 0.7초 연장 노출 보장
+    const duration = 350; // V75: 직접 수집은 350ms 적용
 
     function updatePickupWrapper(timestamp) {
       const elapsed = timestamp - startTime;
@@ -1051,9 +1057,9 @@
         wrapper.remove();
         return;
       }
-      // 매 프레임 카메라 스크롤 가중치를 동적으로 빼서 월드 고정 위치 연출
-      const curScreenX = playerWorldCenterX - cameraX;
-      wrapper.style.transform = `translate3d(${curScreenX}px, ${playerWorldCenterY}px, 0)`;
+      // 플레이어가 우측/좌측으로 무빙 치더라도 이펙트는 먹은 절대 스크롤 공간에 단단히 고정
+      const curScreenX = spawnWorldX - cameraX;
+      wrapper.style.transform = `translate3d(${curScreenX}px, ${spawnWorldY}px, 0)`;
       requestAnimationFrame(updatePickupWrapper);
     }
     requestAnimationFrame(updatePickupWrapper);
@@ -1151,7 +1157,7 @@
     if (e.key==='ArrowRight'||e.key==='d'||e.key==='D') keyRight=false;
   });
 
-  // ★ [V74 최적화] 지연시간 제로! 양손 엇갈림 무빙을 지원하는 멀티터치 실시간 큐 매핑 조작계
+  // ★ 지연시간 제로! 양손 엇갈림 무빙을 지원하는 멀티터치 실시간 큐 매핑 조작계
   const activePointers = {};
 
   function updateMovementFromPointers() {
@@ -1161,7 +1167,6 @@
       keyRight = false;
       return;
     }
-    // 가장 마지막으로 터치 제어 중인 활성 손가락 좌표를 최우선 순위로 매칭
     const lastId = ids[ids.length - 1];
     const clientX = activePointers[lastId];
     
@@ -1176,7 +1181,6 @@
     }
   }
 
-  // 플레이 영역 내부에서만 동작하여 결과 화면/메뉴의 탭 및 드래그, 버튼 작동은 100% 온전하게 보장
   playArea.addEventListener('pointerdown', e => {
     e.preventDefault();
     if (!isStarted || isGameOver) return;
@@ -1205,11 +1209,10 @@
     updateMovementFromPointers();
   });
 
-  // ★ [V74 최적화] 사파리 및 iOS 인앱 웹뷰 더블탭 화면 확대/돋보기 간섭 원천 무력화 방패
+  // ★ 사파리 및 iOS 인앱 웹뷰 더블탭 화면 확대/돋보기 간섭 원천 무력화 방패
   let lastTouchTime = 0;
   playArea.addEventListener('touchstart', e => {
     const now = Date.now();
-    // 300ms 이내의 더블 탭 제스처 수신 시, 사파리 확대 이벤트를 강제로 예방 차단
     if (now - lastTouchTime < 300) {
       e.preventDefault();
     }
