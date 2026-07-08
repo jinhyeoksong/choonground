@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>H5game 0630 V66 393px Gameplay Fixed</title>
+<title>H5game 0630 V81 Mobile Lobby UI Fixed</title>
 <style>
   /* 폰트 경로 변경 및 프리텐다드 폰트 사양 등록 완료 */
   @font-face { font-family:'Pretendard'; src:url('assets/fonts/Pretendard-Bold.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap; }
@@ -43,7 +43,7 @@
   .screen { position:absolute; inset:0; display:none; }
   .screen.active { display:block; }
   
-  /* ★ [V80 안전 마크업] 메인 로비 정적 디자인 레이아웃 시스템 */
+  /* ★ [V81 정적 레이아웃 시스템 수술] */
   .lobbyArea { position:absolute; inset:0; background:#B7E4FF; overflow:hidden; display:flex; flex-direction:column; align-items:center; }
   
   /* 상단 내비바 마크업 사양 매칭 */
@@ -56,33 +56,37 @@
   .lobbyTitleLogo { width:260px; height:auto; object-fit:contain; }
   .lobbySubCopy { font-family:'Pretendard', sans-serif; font-size:16px; font-weight:600; color:#222529; line-height:1.45; margin-top:16px; letter-spacing:-0.5px; }
   
-  /* 대기실 환경 요소들 정적 뎁스 배치 (모션 없음) */
-  .lobbyCloudBack { position:absolute; width:190px; left:20px; top:160px; z-index:10; opacity:0.8; }
-  .lobbyCloudFront { position:absolute; width:150px; right:-20px; top:240px; z-index:15; opacity:0.9; }
-  .lobbyAirdropLeft { position:absolute; width:64px; left:45px; top:360px; z-index:25; }
-  .lobbyAirdropRight { position:absolute; width:52px; right:40px; top:400px; z-index:25; }
+  /* [피드백 반영 3] 대기실 좌우 구름 크기 및 가로 꽉 차는 입체 배치식 수정 */
+  .lobbyCloudBack { position:absolute; width:220px; left:-20px; top:130px; z-index:10; opacity:0.85; }
+  .lobbyCloudFront { position:absolute; width:160px; right:-10px; top:210px; z-index:15; opacity:0.95; }
+  
+  /* [피드백 반영 2] 로고 및 춘식이와 겹치지 않도록 아일랜드 외곽으로 배치 조정 */
+  .lobbyAirdropLeft { position:absolute; width:58px; left:24px; top:260px; z-index:25; }
+  .lobbyAirdropRight { position:absolute; width:48px; right:24px; top:310px; z-index:25; }
+  
   .lobbyLeaf01 { position:absolute; width:22px; left:30px; top:540px; z-index:45; transform: rotate(-15deg); }
   .lobbyLeaf02 { position:absolute; width:18px; right:50px; top:480px; z-index:45; transform: rotate(20deg); }
-  .lobbyLeaf03 { position:absolute; width:16px; left:80px; top:630px; z-index:45; transform: rotate(10deg); }
   
-  /* 뒤편 산맥과 앞편 잔디의 입체 마크업 정렬 */
-  .lobbyBgMountain { position:absolute; left:0; bottom:140px; width:100%; height:auto; z-index:5; }
+  /* [피드백 반영 1] 구름과 마찬가지로 .png 산맥 에셋을 풀밭 바로 뒤(bottom: 115px)에 겹쳐지도록 안착시킴 */
+  .lobbyBgMountain { position:absolute; left:0; bottom:115px; width:100%; height:auto; z-index:5; }
+  
   .lobbyBgGrassContainer { position:absolute; left:0; bottom:0; width:100%; height:152px; z-index:20; display:flex; flex-direction:column; }
   .lobbyBgGrassImg { width:100%; height:82px; object-fit:cover; display:block; }
   /* 하단 기기 격차 대응용 고유 코드 솔리드 확장 구조화 */
   .lobbyBgGrassFiller { flex:1; background-color:#80CB6D; width:100%; }
   
-  /* 춘식이 본체 캐릭터와 그림자 정적 배치 관계식 */
+  /* [피드백 반영 4] 춘식이 캐릭터 본체와 그림자 정적 배치 관계식 (★점프 애니메이션 일절 배제하여 정적 유지) */
   .lobbyCharacterWrapper { position:absolute; left:50%; bottom:106px; transform:translateX(-50%); width:150px; height:186px; z-index:30; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; }
-  .lobbyChunsikImg { width:142px; height:auto; display:block; transform: translate3d(0, -6px, 0); }
-  .lobbyChunsikShadow { position:absolute; width:98px; height:auto; bottom:-2px; left:50%; transform:translateX(-50%); z-index:29; opacity:0.85; }
+  .lobbyChunsikImg { width:142px; height:auto; display:block; z-index:32; }
+  /* 그림자의 뎁스를 확실히 뒤(z-index: 28)로 내리고, 간격을 아래로 이동(bottom: -10px)시킴 */
+  .lobbyChunsikShadow { position:absolute; width:98px; height:auto; bottom:-10px; left:50%; transform:translateX(-50%); z-index:28; opacity:0.85; }
   
   /* 로비 액션 버튼 UI 사양 매칭 */
   .lobbyActionArea { position:absolute; left:0; right:0; bottom:42px; padding:0 20px; z-index:50; }
   .btnLobbyStart { width:100%; height:60px; background-color:#FFE11F; border:none; border-radius:12px; font-family:'Pretendard', sans-serif; font-size:18px; font-weight:700; color:#111111; display:flex; align-items:center; justify-content:center; cursor:pointer; pointer-events:auto; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
   .btnLobbyStart:active { background-color:#edd113; }
 
-  /* ★ [V80 안전 마크업] 신규 이벤트 응모 페이지 정적 레이아웃 공간 */
+  /* ★ [V81 정적 레이아웃] 신규 이벤트 응모 페이지 정적 레이아웃 공간 */
   .eventPageArea { position:absolute; inset:0; background:#FFFFFF; display:flex; flex-direction:column; align-items:center; overflow:hidden; }
   .eventDummyBody { width:100%; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; font-family:'Pretendard', sans-serif; text-align:center; background-color:#f4f6f9; color:#888; font-size:15px; }
 
@@ -338,7 +342,8 @@
   .skyCloud.small-mid { width:120px; opacity:.34; }
   .skyCloud.big-right { width:190px; opacity:.30; }
 
-  .mountain-bg { position: absolute; left: 0; bottom: 85px; width: 100%; height: 248px; background: url('assets/game/bg_mountain.webp') no-repeat bottom left; background-size: 1179px auto; z-index: 5; will-change: background-position-x; }
+  /* 인게임 산맥 및 지상 배경은 .png 사양 안전하게 준수 */
+  .mountain-bg { position: absolute; left: 0; bottom: 85px; width: 100%; height: 248px; background: url('assets/game/bg_mountain.png') no-repeat bottom left; background-size: 1179px auto; z-index: 5; will-change: background-position-x; }
   .ground { position: absolute; left: 0; bottom: 0; width: 100%; height: 85px; background: url('assets/game/bg_ground.png') repeat-x bottom left; background-size: 393px 85px; z-index: 10; will-change: background-position-x; }
 
   /* result */
@@ -540,7 +545,7 @@
   document.addEventListener('gesturestart', e => e.preventDefault());
   document.addEventListener('gesturechange', e => e.preventDefault());
 
-  // ★ [V80 안전 라우팅] 인게임 리소스 경로 일괄 game 폴더 사양으로 변환 완료
+  // ★ [V81 안전 라우팅] 인게임 리소스 경로 일괄 game 폴더 사양으로 변환 완료
   const ASSETS = { 
     chunsik: 'assets/game/player_character.png', 
     box: 'assets/game/item_supply_drop.png', 
@@ -558,7 +563,7 @@
   const playerEl = $('player');
   const playerImg = playerEl.querySelector('img');
   
-  // ★ [V80 안전 라우팅] 변수 내부 하드코딩 경로 일치 수술 완료
+  // ★ [V81 안전 라우팅] 변수 내부 하드코딩 경로 일치 수술 완료
   const PLAYER_RUN_SRC = 'assets/game/player_run.webp';
   const PLAYER_IDLE_SRC = 'assets/game/player_idle.png';
   const PLAYER_HIT_SRC = 'assets/game/player_hit.png';
@@ -1294,6 +1299,7 @@
     updateMovementFromPointers();
   });
 
+  let lastTouchTime = 0;
   playArea.addEventListener('touchstart', e => {
     const now = Date.now();
     if (now - lastTouchTime < 300) {
@@ -1302,7 +1308,6 @@
     lastTouchTime = now;
   }, { passive: false });
 
-  // ★ [V80 동선 연결] 각 버튼 클릭 핸들러 및 화면 흐름 매핑
   $('btnGameStart').onclick = () => {
     show('gameScreen');
     startGame();
