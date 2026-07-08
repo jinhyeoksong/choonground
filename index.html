@@ -863,7 +863,7 @@
 
       if (o.y < 50) continue;
 
-      const or = getObjectHidebox = getObjectHitbox(o);
+      const or = getObjectHitbox(o);
 
       if (hit(pr,or)) {
         if (o.type==='box') collect(o, 10, now);
@@ -1001,8 +1001,23 @@
         }
         
         const t = elapsed / lifetime;
-        opacity = 1.0 - t;
-        scale = 1.0 - t * 0.4;
+        
+        // ★ [V76 튜닝] 새로운 프리미엄 애니메이션 주기 적용: 
+        // 0% -> 25%(정점) 까지는 [크기 50% -> 100%, 투명도 0% -> 100%] (응축 후 반짝!)
+        // 25% -> 100%(소멸) 까지는 [크기 100% -> 120%, 투명도 100% -> 0%] (확산 소멸)
+        let currentOpacity = 0;
+        let currentScale = 0.5;
+        const peakT = 0.25; // 25% 시점을 밝기 정점 프레임으로 활용
+        
+        if (t < peakT) {
+          const ratio = t / peakT;
+          currentOpacity = ratio;
+          currentScale = 0.5 + ratio * 0.5;
+        } else {
+          const ratio = (t - peakT) / (1.0 - peakT);
+          currentOpacity = 1.0 - ratio;
+          currentScale = 1.0 + ratio * 0.2;
+        }
         
         vy += 0.22;
         
@@ -1012,8 +1027,8 @@
         const screenX = (worldX + relativeX) - cameraX;
         const screenY = worldY + relativeY;
         
-        p.style.transform = `translate3d(${screenX}px, ${screenY}px, 0) scale(${scale})`;
-        p.style.opacity = opacity;
+        p.style.transform = `translate3d(${screenX}px, ${screenY}px, 0) scale(${currentScale})`;
+        p.style.opacity = currentOpacity;
         
         requestAnimationFrame(updateParticle);
       }
@@ -1143,6 +1158,7 @@
     bgmStep++;
   }
 
+  // ★ [안심 수정] 중복 방지 및 정적인 변수 바인딩 수술 완료 (typo 방지)
   function playFeverSfx() {
     if (!audioCtx) return;
     [523.25, 659.25, 783.99, 1046.5].forEach((f, i)=>setTimeout(()=>playTone(f, 0.12, 'triangle', 0.06), i*55));
