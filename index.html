@@ -3,17 +3,13 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>H5game 0630 V81 Mobile Lobby UI Fixed</title>
+<title>H5game 0630 V66 393px Gameplay Fixed</title>
 <style>
-  /* 폰트 경로 변경 및 프리텐다드 폰트 사양 등록 완료 */
-  @font-face { font-family:'Pretendard'; src:url('assets/fonts/Pretendard-Bold.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap; }
-  @font-face { font-family:'Pretendard'; src:url('assets/fonts/Pretendard-SemiBold.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-700.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap; }
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-800.woff2') format('woff2'); font-weight:800; font-style:normal; font-display:swap; }
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-900.woff2') format('woff2'); font-weight:900; font-style:normal; font-display:swap; }
-  
   * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
@@ -21,7 +17,7 @@
     -webkit-user-select: none;
     user-select: none;
   }
-  html, body, .phone, .screen {
+  html, body, .phone, .screen, .playArea {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
@@ -38,64 +34,21 @@
     pointer-events: none;
   }
 
-  body { margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; background:#2f2f2f; font-family:'Pretendard', system-ui, -apple-system, sans-serif; color:#10151f; overflow:hidden; }
+  body { margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; background:#2f2f2f; font-family:'Tomorrow', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; color:#10151f; overflow:hidden; }
   .phone { width:393px; height:844px; max-width:100vw; max-height:100vh; position:relative; overflow:hidden; background-color: #B7E4FF; box-shadow:0 24px 72px rgba(0,0,0,.35); }
   .screen { position:absolute; inset:0; display:none; }
   .screen.active { display:block; }
-  
-  /* ★ [V81 정적 레이아웃 시스템 수술] */
-  .lobbyArea { position:absolute; inset:0; background:#B7E4FF; overflow:hidden; display:flex; flex-direction:column; align-items:center; }
-  
-  /* 상단 내비바 마크업 사양 매칭 */
-  .lobbyNav { position:absolute; top:0; left:0; right:0; height:60px; display:flex; align-items:center; justify-content:space-between; padding:0 20px; z-index:90; }
-  .lobbyNav .btnNavIcon { width:24px; height:24px; object-fit:contain; cursor:pointer; pointer-events:auto; }
-  .lobbyNav .navTitle { font-family:'Pretendard', sans-serif; font-size:17px; font-weight:700; color:#111111; letter-spacing:-0.3px; }
-  
-  /* 타이틀 로고 및 카피 위치 스펙 */
-  .lobbyHeader { width:100%; display:flex; flex-direction:column; align-items:center; margin-top:108px; z-index:40; text-align:center; }
-  .lobbyTitleLogo { width:260px; height:auto; object-fit:contain; }
-  .lobbySubCopy { font-family:'Pretendard', sans-serif; font-size:16px; font-weight:600; color:#222529; line-height:1.45; margin-top:16px; letter-spacing:-0.5px; }
-  
-  /* [피드백 반영 3] 대기실 좌우 구름 크기 및 가로 꽉 차는 입체 배치식 수정 */
-  .lobbyCloudBack { position:absolute; width:220px; left:-20px; top:130px; z-index:10; opacity:0.85; }
-  .lobbyCloudFront { position:absolute; width:160px; right:-10px; top:210px; z-index:15; opacity:0.95; }
-  
-  /* [피드백 반영 2] 로고 및 춘식이와 겹치지 않도록 아일랜드 외곽으로 배치 조정 */
-  .lobbyAirdropLeft { position:absolute; width:58px; left:24px; top:260px; z-index:25; }
-  .lobbyAirdropRight { position:absolute; width:48px; right:24px; top:310px; z-index:25; }
-  
-  .lobbyLeaf01 { position:absolute; width:22px; left:30px; top:540px; z-index:45; transform: rotate(-15deg); }
-  .lobbyLeaf02 { position:absolute; width:18px; right:50px; top:480px; z-index:45; transform: rotate(20deg); }
-  
-  /* [피드백 반영 1] 구름과 마찬가지로 .png 산맥 에셋을 풀밭 바로 뒤(bottom: 115px)에 겹쳐지도록 안착시킴 */
-  .lobbyBgMountain { position:absolute; left:0; bottom:115px; width:100%; height:auto; z-index:5; }
-  
-  .lobbyBgGrassContainer { position:absolute; left:0; bottom:0; width:100%; height:152px; z-index:20; display:flex; flex-direction:column; }
-  .lobbyBgGrassImg { width:100%; height:82px; object-fit:cover; display:block; }
-  /* 하단 기기 격차 대응용 고유 코드 솔리드 확장 구조화 */
-  .lobbyBgGrassFiller { flex:1; background-color:#80CB6D; width:100%; }
-  
-  /* [피드백 반영 4] 춘식이 캐릭터 본체와 그림자 정적 배치 관계식 (★점프 애니메이션 일절 배제하여 정적 유지) */
-  .lobbyCharacterWrapper { position:absolute; left:50%; bottom:106px; transform:translateX(-50%); width:150px; height:186px; z-index:30; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; }
-  .lobbyChunsikImg { width:142px; height:auto; display:block; z-index:32; }
-  /* 그림자의 뎁스를 확실히 뒤(z-index: 28)로 내리고, 간격을 아래로 이동(bottom: -10px)시킴 */
-  .lobbyChunsikShadow { position:absolute; width:98px; height:auto; bottom:-10px; left:50%; transform:translateX(-50%); z-index:28; opacity:0.85; }
-  
-  /* 로비 액션 버튼 UI 사양 매칭 */
-  .lobbyActionArea { position:absolute; left:0; right:0; bottom:42px; padding:0 20px; z-index:50; }
-  .btnLobbyStart { width:100%; height:60px; background-color:#FFE11F; border:none; border-radius:12px; font-family:'Pretendard', sans-serif; font-size:18px; font-weight:700; color:#111111; display:flex; align-items:center; justify-content:center; cursor:pointer; pointer-events:auto; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
-  .btnLobbyStart:active { background-color:#edd113; }
-
-  /* ★ [V81 정적 레이아웃] 신규 이벤트 응모 페이지 정적 레이아웃 공간 */
-  .eventPageArea { position:absolute; inset:0; background:#FFFFFF; display:flex; flex-direction:column; align-items:center; overflow:hidden; }
-  .eventDummyBody { width:100%; flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; font-family:'Pretendard', sans-serif; text-align:center; background-color:#f4f6f9; color:#888; font-size:15px; }
-
   #gameScreen.resultMode .player,
   #gameScreen.resultMode .player img {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
   }
+  
+  /* 결과/연동 화면용 상단바 (기존 유지) */
+  .topbar { position:absolute; top:0; left:0; right:0; height:50px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-weight:900; z-index:20; }
+  .topbar .back { font-size:26px; }
+  .topbar .share { font-size:24px; transform:rotate(-45deg); }
   
   /* 뒤로가기 버튼 현재 크기 기준 1.3배 확대 */
   #quitBtn {
@@ -151,7 +104,7 @@
     position: absolute;
     left: 12px;
     top: 50%;
-    transform: translateY(-50%) scale(1.3); 
+    transform: translateY(-50%) scale(1.3); /* pill 좌측 기준 12px 고정 */
   }
   
   /* 오른쪽 이동 오프셋을 완전히 제거하고 순수 정렬 위치에 고정 */
@@ -165,7 +118,7 @@
     position: absolute;
     right: 12px;
     top: 50%;
-    transform: translateY(-50%); 
+    transform: translateY(-50%); /* pill 우측 기준 12px 고정 */
   }
 
   .lifeHud {
@@ -241,10 +194,9 @@
   @keyframes levelUp { 0%{ transform:translateX(-50%) scale(.75); opacity:0; } 25%{ transform:translateX(-50%) scale(1.18); opacity:1; } 100%{ transform:translateX(-50%) scale(1); opacity:.9; } }
   @keyframes feverTextPop { 0%{ opacity:0; transform:translate(-50%,-42%) scale(.5); } 16%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 72%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-58%) scale(.96); } }
   
+  .playArea { position:absolute; inset:0; overflow:hidden; touch-action:none; -webkit-user-select:none; user-select:none; }
   .playArea img { pointer-events:none; }
   .laneHint { display:none !important; }
-  
-  /* 캐릭터 레이어 최상위 전면 배치 (z-index: 18) */
   .player { position:absolute; width:92px; height:114px; left:0; bottom:42px; z-index:18; transform-origin:50% 100%; will-change: transform; pointer-events:none; }
   .player img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
   .player.hit { animation:hitShake .45s ease-out; }
@@ -274,66 +226,49 @@
   .comboSvgText { font-size:25px; font-weight:700; stroke-width:6px; }
   @keyframes comboPop { 0%{ opacity:0; transform:translate(-50%,-40%) scale(.55); } 18%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 62%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-64%) scale(.98); } }
   
-  .pickupEffectWrapper {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 0;
-    height: 0;
-    z-index: 17;
-    pointer-events: none;
-    will-change: transform;
-  }
-  .pickupEffect { 
-    position:absolute; 
-    left: -45px; 
-    top: -45px; 
-    width: 90px; 
-    height: 90px; 
-    pointer-events:none; 
-    animation:pickupBurst 0.35s cubic-bezier(0.25, 1, 0.5, 1) forwards; 
-  }
+  /* ★ 2단계 튜닝: fx_pickup.png 이미지가 회전 폭파하지 않고, 마리오 코인처럼 중심에서 영롱하게 팝-투명 링으로 퍼지는 글로우 트윙클 연출 */
+  .pickupEffect { position:absolute; left:0; top:0; width:58px; height:58px; z-index:60; pointer-events:none; transform:translate(-50%,-50%) scale(.7); animation:pickupBurst 0.45s ease-out forwards; }
   .pickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
-  
-  .feverAutoPickupWrapper {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 0;
-    height: 0;
-    z-index: 16;
-    pointer-events: none;
-    will-change: transform;
-  }
-  .feverAutoPickupEffect { 
-    position:absolute; 
-    left: -32px;
-    top: -32px; 
-    width:64px; 
-    height:64px; 
-    pointer-events:none; 
-    animation:feverAutoPickupBurst 0.22s ease-out forwards; 
-  }
+  .feverAutoPickupEffect { position:absolute; left:0; top:0; width:64px; height:64px; z-index:60; pointer-events:none; transform:translate(-50%,-50%) scale(.8); animation:feverAutoPickupBurst 1.05s ease-out forwards; }
   .feverAutoPickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
-  
   @keyframes pickupBurst {
-    0% { opacity: 0; transform: scale(0.3); }
-    30% { opacity: 1; transform: scale(1.1); }
-    80% { opacity: 1; transform: scale(0.96); }
-    100% { opacity: 0; transform: scale(1.2); }
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+    25% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1.35); }
   }
   @keyframes feverAutoPickupBurst {
-    0% { opacity: 0; transform: scale(0.2); }
-    40% { opacity: 1; transform: scale(1.0); }
-    100% { opacity: 0; transform: scale(1.15); }
+    0% {
+      opacity:0;
+      transform:translate(-50%,-50%) scale(.95);
+      filter:brightness(1.2);
+    }
+    12% {
+      opacity:1;
+      transform:translate(-50%,-50%) scale(1);
+      filter:brightness(1.9);
+    }
+    45% {
+      opacity:1;
+      transform:translate(-50%,-56%) scale(1.02);
+      filter:brightness(1.45);
+    }
+    75% {
+      opacity:.65;
+      transform:translate(-50%,-68%) scale(1.04);
+      filter:brightness(1.15);
+    }
+    100% {
+      opacity:0;
+      transform:translate(-50%,-82%) scale(1.06);
+      filter:brightness(1);
+    }
   }
 
-  .feverFlash { 
-    position:absolute; inset:0; opacity:0; pointer-events:none; z-index:11; mix-blend-mode:screen; 
-    background: radial-gradient(circle at 50% 52%, rgba(255,245,66,.18), transparent 65%), linear-gradient(135deg, rgba(255,232,0,.12), rgba(255,119,0,.08), rgba(255,255,255,.03)); 
-    transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-  }
-  .feverFlash.on { opacity:1; transition: none; }
+  .feverFlash { position:absolute; inset:0; opacity:0; pointer-events:none; z-index:26; mix-blend-mode:screen; background: radial-gradient(circle at 50% 52%, rgba(255,245,66,.55), transparent 35%), linear-gradient(135deg, rgba(255,232,0,.25), rgba(255,119,0,.22), rgba(255,255,255,.12)); }
+  .feverFlash.on { opacity:1; animation:feverStrobe .22s ease-in-out infinite alternate; }
+  .feverFlash.on::after { content:''; position:absolute; inset:-20%; background:radial-gradient(circle, rgba(255,255,255,.9) 0 2px, transparent 3px); background-size:58px 58px; animation:feverSparkle .5s steps(2,end) infinite; opacity:.65; }
+  @keyframes feverStrobe { from{ opacity:.18; filter:saturate(1.1) brightness(1); } to{ opacity:.58; filter:saturate(1.65) brightness(1.18); } }
+  @keyframes feverSparkle { 0%{ transform:translate(0,0) scale(1); } 100%{ transform:translate(22px,18px) scale(1.04); } }
   
   .skyCloud { position:absolute; left:0; top:0; pointer-events:none; z-index:4; opacity:.34; will-change:transform; }
   .skyCloud img { width:100%; height:auto; display:block; }
@@ -342,9 +277,8 @@
   .skyCloud.small-mid { width:120px; opacity:.34; }
   .skyCloud.big-right { width:190px; opacity:.30; }
 
-  /* 인게임 산맥 및 지상 배경은 .png 사양 안전하게 준수 */
-  .mountain-bg { position: absolute; left: 0; bottom: 85px; width: 100%; height: 248px; background: url('assets/game/bg_mountain.png') no-repeat bottom left; background-size: 1179px auto; z-index: 5; will-change: background-position-x; }
-  .ground { position: absolute; left: 0; bottom: 0; width: 100%; height: 85px; background: url('assets/game/bg_ground.png') repeat-x bottom left; background-size: 393px 85px; z-index: 10; will-change: background-position-x; }
+  .mountain-bg { position: absolute; left: 0; bottom: 85px; width: 100%; height: 248px; background: url('assets/bg_mountain.webp') no-repeat bottom left; background-size: 1179px auto; z-index: 5; will-change: background-position-x; }
+  .ground { position: absolute; left: 0; bottom: 0; width: 100%; height: 85px; background: url('assets/bg_ground.png') repeat-x bottom left; background-size: 393px 85px; z-index: 10; will-change: background-position-x; }
 
   /* result */
   .panel { position:absolute; left:20px; right:20px; top:118px; background:rgba(255,255,255,.94); border-radius:28px; padding:28px 22px; box-shadow:0 20px 48px rgba(0,0,0,.08); text-align:center; }
@@ -382,76 +316,19 @@
     #quitBtn { top: calc(var(--mobile-ui-offset, 0px) + 24px); }
     .hud { top: calc(var(--mobile-ui-offset, 0px) + 74px); }
     .lifeHud { top: calc(var(--mobile-ui-offset, 0px) + 85px); }
-    
-    /* 미디어쿼리 대응 모바일 패딩 조정 오프셋 */
-    .lobbyNav { top: var(--mobile-ui-offset, 0px); }
-    .lobbyHeader { margin-top: calc(var(--mobile-ui-offset, 0px) + 108px); }
   }
 </style>
 </head>
 <body>
   <div class="phone" id="phone">
     
-    <section id="lobbyScreen" class="screen active">
-      <div class="lobbyArea">
-        <div class="lobbyNav">
-          <img src="assets/common/btn_close.png" class="btnNavIcon" id="btnLobbyClose" alt="닫기" />
-          <span class="navTitle">배틀그라운드 이벤트</span>
-          <img src="assets/common/btn_share.png" class="btnNavIcon" id="btnLobbyShare" alt="공유" />
-        </div>
-        
-        <div class="lobbyHeader">
-          <img src="assets/lobby/main_title_logo.png" class="lobbyTitleLogo" alt="CHOON GROUND" />
-          <div class="lobbySubCopy">
-            춘식이와 보급상자 모으고<br/>치킨부터 배그 아이템까지!
-          </div>
-        </div>
-        
-        <img src="assets/lobby/main_cloud_back.png" class="lobbyCloudBack" alt="" />
-        <img src="assets/lobby/main_cloud_front.png" class="lobbyCloudFront" alt="" />
-        <img src="assets/lobby/main_airdrop.png" class="lobbyAirdropLeft" alt="보급상자" />
-        <img src="assets/lobby/main_airdrop.png" class="lobbyAirdropRight" alt="보급상자" />
-        <img src="assets/lobby/main_leaf_01.png" class="lobbyLeaf01" alt="" />
-        <img src="assets/lobby/main_leaf_02.png" class="lobbyLeaf02" alt="" />
-        
-        <div class="lobbyCharacterWrapper">
-          <img src="assets/lobby/main_chunsik_shadow.png" class="lobbyChunsikShadow" alt="" />
-          <img src="assets/lobby/main_chunsik.png" class="lobbyChunsikImg" alt="춘식이" />
-        </div>
-        
-        <img src="assets/lobby/main_bg_mountain.png" class="lobbyBgMountain" alt="" />
-        <div class="lobbyBgGrassContainer">
-          <img src="assets/lobby/main_bg_grass.png" class="lobbyBgGrassImg" alt="" />
-          <div class="lobbyBgGrassFiller"></div>
-        </div>
-        
-        <div class="lobbyActionArea">
-          <button class="btnLobbyStart" id="btnGameStart">게임 시작하기</button>
-        </div>
-      </div>
-    </section>
-    
-    <section id="eventScreen" class="screen">
-      <div class="eventPageArea">
-        <div class="lobbyNav" style="border-bottom: 1px solid #eee; background:#fff;">
-          <img src="assets/common/btn_close.png" class="btnNavIcon" id="btnEventClose" alt="닫기" />
-          <span class="navTitle">이벤트 응모하기</span>
-          <img src="assets/common/btn_share.png" class="btnNavIcon" alt="공유" />
-        </div>
-        <div class="eventDummyBody">
-          <p>[이벤트 상세 응모 카드 대기방]</p>
-          <span style="font-size:12px; opacity:0.7;">에셋(event_bg, event_card) 수령 후<br/>수치에 맞춰 이곳에 정밀 마크업이 연동됩니다.</span>
-        </div>
-      </div>
-    </section>
-    
-    <section id="gameScreen" class="screen">
+    <section id="gameScreen" class="screen active">
       <div class="playArea" id="playArea">
         <div class="feverFlash" id="feverFlash"></div>
-        <div class="skyCloud big-left" data-x="-95" data-y="225" data-parallax="1"><img src="assets/game/bg_cloud_large.png" alt="" /></div>
-        <div class="skyCloud small-top" data-x="460" data-y="64" data-parallax="1"><img src="assets/game/bg_cloud_small.png" alt="" /></div>
-        <div class="skyCloud small-mid" data-x="830" data-y="300" data-parallax="1"><img src="assets/game/bg_cloud_small.png" alt="" /></div>
-        <div class="skyCloud big-right" data-x="1095" data-y="5" data-parallax="1"><img src="assets/game/bg_cloud_large.png" alt="" /></div>
+        <div class="skyCloud big-left" data-x="-95" data-y="225" data-parallax="1"><img src="assets/bg_cloud_large.png" alt="" /></div>
+        <div class="skyCloud small-top" data-x="460" data-y="64" data-parallax="1"><img src="assets/bg_cloud_small.png" alt="" /></div>
+        <div class="skyCloud small-mid" data-x="830" data-y="300" data-parallax="1"><img src="assets/bg_cloud_small.png" alt="" /></div>
+        <div class="skyCloud big-right" data-x="1095" data-y="5" data-parallax="1"><img src="assets/bg_cloud_large.png" alt="" /></div>
         <div class="mountain-bg" id="mountainBg"></div>
         <div class="ground" id="ground"></div>
       </div>
@@ -465,13 +342,13 @@
       <div class="hud">
         <div class="pills">
           <div class="pill">
-            <img src="assets/game/item_supply.png"/> 
+            <img src="assets/item_supply.png"/> 
             <span id="boxCountText">0</span>
           </div>
         </div>
       </div>
       <div class="lifeHud" id="lifeHud">
-        <img src="assets/game/life_icon.png" class="lifeIcon" alt="목숨" />
+        <img src="assets/life_icon.png" class="lifeIcon" alt="목숨" />
         <span class="lifeX">x</span>
         <span id="lifeCountText">3</span>
       </div>
@@ -488,14 +365,14 @@
           <text class="comboSvgText" x="85" y="95">COMBO</text>
         </svg>
       </div>
-      <div class="player" id="player"><img src="assets/game/player_idle.png" alt="춘식이"/></div>
+      <div class="player" id="player"><img src="assets/player_idle.png" alt="춘식이"/></div>
     </section>
 
     <section id="result" class="screen resultScene">
       <div class="resultCard">
         <h2 class="resultCardTitle">보급 완료</h2>
         <div class="resultSupplyTotal">
-          <img class="resultSupplyIcon" src="assets/game/result_supply_box.png" alt="보급상자" />
+          <img class="resultSupplyIcon" src="assets/result_supply_box.png" alt="보급상자" />
           <b id="finalSupplyCount">0</b>
         </div>
         <div class="resultStats">
@@ -520,7 +397,7 @@
       <div class="topbar"><div class="back">‹</div><div class="share">↗</div></div>
       <div class="panel">
         <div class="resultTitle">보상 저장</div>
-        <img class="resultChunsik" src="assets/game/hero_character.png" />
+        <img class="resultChunsik" src="assets/hero_character.png" />
         <div class="saved">카카오 계정으로 로그인하고<br/>배그 계정에 보상을 저장하세요.</div>
       </div>
       <button class="darkBtn" id="completeBtn">계정 연동하고 저장하기</button>
@@ -531,7 +408,7 @@
       <div class="topbar"><div class="back">‹</div><div class="share">↗</div></div>
       <div class="panel">
         <div class="resultTitle">저장 완료!</div>
-        <img class="resultChunsik" src="assets/game/hero_character.png" />
+        <img class="resultChunsik" src="assets/hero_character.png" />
         <div class="saved">배그 춘식이 스킨 보상은<br/>게임 내 우편함에서 확인할 수 있습니다.</div>
       </div>
       <button class="darkBtn" id="againBtn">처음으로</button>
@@ -544,30 +421,21 @@
   document.addEventListener('selectstart', e => e.preventDefault());
   document.addEventListener('gesturestart', e => e.preventDefault());
   document.addEventListener('gesturechange', e => e.preventDefault());
+  document.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
+  document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+  document.addEventListener('touchend', e => e.preventDefault(), { passive: false });
 
-  // ★ [V81 안전 라우팅] 인게임 리소스 경로 일괄 game 폴더 사양으로 변환 완료
-  const ASSETS = { 
-    chunsik: 'assets/game/player_character.png', 
-    box: 'assets/game/item_supply_drop.png', 
-    gold: 'assets/game/item_fever.png', 
-    mouse: 'assets/game/obstacle_hazard.png', 
-    effect: 'assets/game/fx_pickup.png' 
-  };
-  
+  const ASSETS = { chunsik:'assets/player_character.png', box:'assets/item_supply_drop.png', gold:'assets/item_fever.png', mouse:'assets/obstacle_hazard.png', effect:'assets/fx_pickup.png' };
   const $ = (id) => document.getElementById(id);
-  // 스크린 배열에 lobbyScreen 및 eventScreen 신규 등록 연동
-  const screens = ['lobbyScreen', 'eventScreen', 'gameScreen', 'result', 'save', 'complete'].map($);
-  const show = (id) => { screens.forEach(s=> { if(s) s.classList.remove('active'); }); if($(id)) $(id).classList.add('active'); };
+  const screens = ['gameScreen','result','save','complete'].map($);
+  const show = (id) => { screens.forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); };
 
   const playArea = $('playArea');
   const playerEl = $('player');
   const playerImg = playerEl.querySelector('img');
-  
-  // ★ [V81 안전 라우팅] 변수 내부 하드코딩 경로 일치 수술 완료
-  const PLAYER_RUN_SRC = 'assets/game/player_run.webp';
-  const PLAYER_IDLE_SRC = 'assets/game/player_idle.png';
-  const PLAYER_HIT_SRC = 'assets/game/player_hit.png';
-  
+  const PLAYER_RUN_SRC = 'assets/player_run.webp';
+  const PLAYER_IDLE_SRC = 'assets/player_idle.png';
+  const PLAYER_HIT_SRC = 'assets/player_hit.png';
   const positionDirText = $('positionDir');
   const positionPercentText = $('positionPercent');
   const boxCountText = $('boxCountText');
@@ -726,7 +594,7 @@
     clearTimeout(feverNoticeTimer);
     feverNoticeTimer = setTimeout(()=>{ isFeverNoticeActive = false; }, 1050);
 
-    feverBadge.classList.add('on'); feverFlash.classList.add('on');
+    feverBadge.classList.add('on'); feverFlash.classList.remove('on');
     setBgmFever(true);
     playFeverSfx();
   }
@@ -741,10 +609,7 @@
       levelBadge.classList.add('up');
     }
     nextFeverAllowedTime = now + 8000;
-    feverBadge.classList.remove('on'); 
-    
-    feverFlash.classList.remove('on');
-    
+    feverBadge.classList.remove('on'); feverFlash.classList.remove('on');
     isFeverNoticeActive = false;
     clearTimeout(feverNoticeTimer);
     setBgmFever(false);
@@ -824,9 +689,10 @@
       dead:false
     };
 
+    // ★ 1단계 튜닝: 보급품(box) 스폰 시 좌/우 방향 중 무작위로 하나의 기울기 각도만 고정 부여
     if (type === 'box') {
       const direction = Math.random() < 0.5 ? -1 : 1;
-      obj.fixedAngle = direction * (1.8 + Math.random() * 1.2); 
+      obj.fixedAngle = direction * (1.8 + Math.random() * 1.2); // 1.8도 ~ 3.0도 사이로 고정
     }
 
     objects.push(obj);
@@ -939,6 +805,7 @@
     for (const o of objects) {
       o.y += o.speed*dt;
       
+      // ★ 1단계 튜닝: 보급품(box)은 수직으로 한치의 흔들림 없이 직선 하강하고, 스폰 때 정해진 고정각(fixedAngle)으로만 렌더링
       let transformStr = `translate3d(${o.x - cameraX}px, ${o.y}px, 0)`;
       if (o.type === 'box' && o.fixedAngle) {
         transformStr += ` rotate(${o.fixedAngle}deg)`;
@@ -974,6 +841,7 @@
   }
 
   function getObjectHitbox(o) {
+    // ★ 1단계 튜닝: 수직 낙하하므로 실제 생성된 x 좌표 그대로 물리 판정 진행 ($100\%$ 판정의 직관성 보장)
     if (o.type === 'gold') {
       return { x: o.x, y: o.y, w: 31, h: 53 };
     }
@@ -988,7 +856,7 @@
   function collect(o, pts, now) {
     const fxX = o.x + o.w/2;
     const fxY = o.y + o.h/2;
-    spawnPickupEffect(fxX, fxY, o.type); 
+    spawnPickupEffect(fxX, fxY, o.type); // ★ o.type 전달하도록 확장
     releaseObject(o);
     score += pts;
     if (o.type === 'box' || o.type === 'gold') {
@@ -1012,72 +880,71 @@
   }
 
   function spawnFeverAutoPickupEffect(x, y) {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'feverAutoPickupWrapper';
-    playArea.appendChild(wrapper);
+    const screenX = x - cameraX;
 
     const fx = document.createElement('div');
     fx.className = 'feverAutoPickupEffect';
+    fx.style.left = screenX + 'px';
+    fx.style.top = y + 'px';
     const img = document.createElement('img');
     img.src = ASSETS.effect;
     fx.appendChild(img);
-    wrapper.appendChild(fx);
-
-    const startTime = performance.now();
-    const duration = 220; 
-
-    function updateAutoFx(timestamp) {
-      const elapsed = timestamp - startTime;
-      if (elapsed >= duration || !isStarted) {
-        wrapper.remove();
-        return;
-      }
-      const curScreenX = x - cameraX;
-      wrapper.style.transform = `translate3d(${curScreenX}px, ${y}px, 0)`;
-      requestAnimationFrame(updateAutoFx);
-    }
-    requestAnimationFrame(updateAutoFx);
+    playArea.appendChild(fx);
+    setTimeout(()=>fx.remove(), 1050);
   }
 
-  function spawnSparklingParticles(worldX, worldY) {
-    const particleCount = 15; 
-    const brightYellow = '#F5F0CE'; 
-    const moveDir = player.dir;
-
+  // ★ 2단계 수정: 마리오 코인 획득 방식처럼 중력을 완전히 거스르고 
+  // 십자 별(✦)과 둥근 빛가루가 위로 둥실 떠오르며 '수집/획득'되는 안심 이펙트 시스템
+  function spawnSparklingParticles(x, y, isGold) {
+    const screenX = x - cameraX;
+    
+    // 일반 상자는 깔끔하게 10개, 피버 닭다리는 조금 더 풍성한 15개 배정 (2번 룰 준수)
+    const particleCount = isGold ? 15 : 10; 
+    
+    // 3단계 연출 대비: 아이템 무드 분리형 컬러 구성
+    const colors = isGold 
+      ? ['#FFD54F', '#FF8F00', '#FFEA00', '#FFFFFF'] // 피버 닭다리는 좀 더 액티브한 주황/불꽃색 배정
+      : ['#FFE872', '#FFD54F', '#FFF9C4', '#FFFFFF']; // 일반 상자는 레퍼런스 스타일의 순수 황금빛
+    
     for (let i = 0; i < particleCount; i++) {
       const p = document.createElement('div');
       p.style.position = 'absolute';
-      p.style.left = '0px';
-      p.style.top = '0px';
+      p.style.left = screenX + 'px';
+      p.style.top = y + 'px';
+      p.style.width = (4 + Math.random() * 5) + 'px';
+      p.style.height = p.style.width;
       p.style.pointerEvents = 'none';
-      p.style.zIndex = '16'; 
-      p.style.display = 'flex';
-      p.style.alignItems = 'center';
-      p.style.justifyContent = 'center';
-      p.style.willChange = 'transform';
+      p.style.zIndex = '59';
       
-      const size = 11 + Math.random() * 8; 
-      p.innerHTML = `
-        <svg width="${size}" height="${size}" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 2px rgba(245,240,206,0.75));">
-          <path d="M50 0C50 35 65 50 100 50C65 50 50 65 50 100C50 65 35 50 0 50C35 50 50 35 50 0Z" fill="${brightYellow}"/>
-        </svg>
-      `;
+      const isStar = Math.random() < 0.45; // 45% 확률로 아기자기한 십자 별(✦) 입자 연출
+      if (isStar) {
+        p.innerHTML = '✦';
+        p.style.color = colors[Math.floor(Math.random() * colors.length)];
+        p.style.fontSize = (10 + Math.random() * 10) + 'px';
+        p.style.lineHeight = '1';
+        p.style.display = 'flex';
+        p.style.alignItems = 'center';
+        p.style.justifyContent = 'center';
+        p.style.fontFamily = 'Tomorrow, sans-serif';
+      } else {
+        p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        p.style.borderRadius = '50%';
+      }
       
       playArea.appendChild(p);
       
-      const spreadMultiplier = 1.5;
-      const realDir = (moveDir === 0) ? (Math.random() < 0.5 ? -1 : 1) : moveDir;
-      
-      let vx = -realDir * (1.8 + Math.random() * 3.6) + (Math.random() - 0.5) * 1.8 * spreadMultiplier;
-      let vy = - (3.5 + Math.random() * 4.0) + (Math.random() - 0.5) * 2.5 * spreadMultiplier; 
-      
-      let relativeX = 0;
-      let relativeY = 0;
+      // ★ 수직 부유 연산: 좌우 비산력(vx)은 최소화하여 중심에 예쁘게 모이게 함
+      let vx = (Math.random() - 0.5) * 1.5; 
+      let vy = -1.2 - Math.random() * 1.8; // 부드럽게 위로 밀어 올리는 초기 속도
+      let px = 0;
+      let py = 0;
+      let buoyancy = -0.15; // ★ 부력(음수의 중력 가속도)을 가해 하늘로 둥실 승천
       let opacity = 1.0;
       let scale = 1.0;
       
+      // 초단기 입자 수명 설계 (0.35s ~ 0.45s)로 빠른 수집 완료 (1번 룰 준수)
       const startTime = performance.now();
-      const lifetime = 400 + Math.random() * 150; 
+      const lifetime = 350 + Math.random() * 100;
       
       function updateParticle(timestamp) {
         const elapsed = timestamp - startTime;
@@ -1087,31 +954,15 @@
         }
         
         const t = elapsed / lifetime;
+        opacity = 1.0 - t;
+        scale = 1.0 - t * 0.6;
         
-        let currentOpacity = 0;
-        let currentScale = 0.5;
-        const peakT = 0.25; 
+        px += vx;
+        vy += buoyancy; // 역중력 가속
+        py += vy;
         
-        if (t < peakT) {
-          const ratio = t / peakT;
-          currentOpacity = ratio;
-          currentScale = 0.5 + ratio * 0.5;
-        } else {
-          const ratio = (t - peakT) / (1.0 - peakT);
-          currentOpacity = 1.0 - ratio;
-          currentScale = 1.0 + ratio * 0.2;
-        }
-        
-        vy += 0.22;
-        
-        relativeX += vx;
-        relativeY += vy;
-        
-        const screenX = (worldX + relativeX) - cameraX;
-        const screenY = worldY + relativeY;
-        
-        p.style.transform = `translate3d(${screenX}px, ${screenY}px, 0) scale(${currentScale})`;
-        p.style.opacity = currentOpacity;
+        p.style.transform = `translate3d(${px}px, ${py}px, 0) scale(${scale})`;
+        p.style.opacity = opacity;
         
         requestAnimationFrame(updateParticle);
       }
@@ -1120,40 +971,22 @@
   }
 
   function spawnPickupEffect(x, y, type) {
-    const scaleFactor = isFever ? 2 : 1;
-    const playerWorldCenterX = player.x;
-    const playerWorldCenterY = (SCREEN_H - 42) - (player.h * scaleFactor) / 2;
+    const screenX = x - cameraX;
 
-    const spawnWorldX = playerWorldCenterX;
-    const spawnWorldY = playerWorldCenterY - 35; 
-
-    const wrapper = document.createElement('div');
-    wrapper.className = 'pickupEffectWrapper';
-    playArea.appendChild(wrapper);
-
+    // fx_pickup.png 이미지가 회전 폭발하지 않고, 둥글게 툭 터지듯 커지며 글리터를 방출하는 Twinkle 효과
     const fx = document.createElement('div');
     fx.className = 'pickupEffect';
+    fx.style.left = screenX + 'px';
+    fx.style.top = y + 'px';
     const img = document.createElement('img');
     img.src = ASSETS.effect;
     fx.appendChild(img);
-    wrapper.appendChild(fx);
+    playArea.appendChild(fx);
+    setTimeout(()=>fx.remove(), 560);
 
-    spawnSparklingParticles(spawnWorldX, spawnWorldY);
-
-    const startTime = performance.now();
-    const duration = 350; 
-
-    function updatePickupWrapper(timestamp) {
-      const elapsed = timestamp - startTime;
-      if (elapsed >= duration || !isStarted) {
-        wrapper.remove();
-        return;
-      }
-      const curScreenX = spawnWorldX - cameraX;
-      wrapper.style.transform = `translate3d(${curScreenX}px, ${spawnWorldY}px, 0)`;
-      requestAnimationFrame(updatePickupWrapper);
-    }
-    requestAnimationFrame(updatePickupWrapper);
+    // ★ 2단계 수집 연동 분기 처리 (모두 +1 팝업 글자는 완전 생략)
+    const isGold = (type === 'gold');
+    spawnSparklingParticles(x, y, isGold);
   }
 
   function endGame() {
@@ -1248,91 +1081,28 @@
     if (e.key==='ArrowRight'||e.key==='d'||e.key==='D') keyRight=false;
   });
 
-  const activePointers = {};
-
-  function updateMovementFromPointers() {
-    const ids = Object.keys(activePointers);
-    if (ids.length === 0) {
-      keyLeft = false;
-      keyRight = false;
-      return;
-    }
-    const lastId = ids[ids.length - 1];
-    const clientX = activePointers[lastId];
-    
+  function setTouchMoveByClientX(clientX) {
+    if (!isStarted || isGameOver) return;
     const rect = phoneEl.getBoundingClientRect();
     const midX = rect.left + rect.width / 2;
-    if (clientX < midX) {
-      keyLeft = true;
-      keyRight = false;
-    } else {
-      keyLeft = false;
-      keyRight = true;
-    }
+    if (clientX < midX) { keyLeft = true; keyRight = false; } else { keyLeft = false; keyRight = true; }
   }
 
-  playArea.addEventListener('pointerdown', e => {
-    e.preventDefault();
-    if (!isStarted || isGameOver) return;
-    activePointers[e.pointerId] = e.clientX;
-    updateMovementFromPointers();
-  });
+  function stopTouchMove() { keyLeft = false; keyRight = false; }
 
-  playArea.addEventListener('pointermove', e => {
-    e.preventDefault();
-    if (!isStarted || isGameOver) return;
-    if (activePointers[e.pointerId] !== undefined) {
-      activePointers[e.pointerId] = e.clientX;
-      updateMovementFromPointers();
-    }
-  });
+  playArea.addEventListener('pointerdown', e=>{ e.preventDefault(); if (!isStarted || isGameOver) return; setTouchMoveByClientX(e.clientX); });
+  playArea.addEventListener('pointermove', e=>{ e.preventDefault(); if (!isStarted || isGameOver) return; if (e.buttons > 0) { setTouchMoveByClientX(e.clientX); } });
+  playArea.addEventListener('pointerup', e=>{ e.preventDefault(); stopTouchMove(); });
+  playArea.addEventListener('pointercancel', e=>{ e.preventDefault(); stopTouchMove(); });
 
-  playArea.addEventListener('pointerup', e => {
-    e.preventDefault();
-    delete activePointers[e.pointerId];
-    updateMovementFromPointers();
-  });
-
-  playArea.addEventListener('pointercancel', e => {
-    e.preventDefault();
-    delete activePointers[e.pointerId];
-    updateMovementFromPointers();
-  });
-
-  let lastTouchTime = 0;
-  playArea.addEventListener('touchstart', e => {
-    const now = Date.now();
-    if (now - lastTouchTime < 300) {
-      e.preventDefault();
-    }
-    lastTouchTime = now;
-  }, { passive: false });
-
-  $('btnGameStart').onclick = () => {
-    show('gameScreen');
-    startGame();
-  };
-  
-  $('retryBtn').onclick = () => {
-    show('eventScreen');
-  };
-  
-  $('btnEventClose').onclick = () => {
-    show('lobbyScreen');
-  };
-  
-  $('mainBtn').onclick = () => {
-    show('gameScreen');
-    startGame();
-  };
-
-  $('quitBtn').onclick = endGame;
-  $('completeBtn').onclick = () => show('complete');
-  $('againBtn').onclick = () => show('lobbyScreen');
+  const retryBtnEl = $('retryBtn'); if (retryBtnEl) retryBtnEl.onclick=startGame;
+  const mainBtnEl = $('mainBtn'); if (mainBtnEl) mainBtnEl.onclick=startGame;
+  $('quitBtn').onclick=endGame;
+  $('completeBtn').onclick=()=>show('complete');
+  $('againBtn').onclick=startGame;
 
   updatePhoneScale();
-  // 로딩 시 첫 화면은 lobbyScreen으로 가도록 초기 설정 유지 (게임 자동시작 Suspended)
-  show('lobbyScreen');
+  setTimeout(startGame, 0);
 })();
 </script>
 </body>
