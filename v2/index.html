@@ -650,12 +650,6 @@
     });
   }
 
-  // 피버 시작: 짧은 부스터 스윕 1개만 재생
-  function playFeverStartSfx() {
-    ensureAudio();
-    playSweep(260, 980, 'sawtooth', 0.36, 0.20);
-  }
-
   // 피버 종료 자동 흡수: 기존 연속 다발음 대신 부드러운 짧은 상승음 1회만 재생
   function playVacuumChainSfx(count) {
     ensureAudio();
@@ -795,8 +789,7 @@
     feverCount += 1;
     feverEndTime = now + 5000;
     
-    // 피버 진입 오디오 효과 재생
-    playFeverStartSfx();
+    // 피버 진입음은 재생하지 않음. 치킨 아이템 획득음만 사용합니다.
 
     objects.filter(o=>o.type==='mouse').forEach(o=>{ o.dead=true; o.el.style.display = 'none'; const p = objectPool.find(x=>x.el===o.el); if(p)p.inUse=false; });
     objects = objects.filter(o=>!o.dead);
