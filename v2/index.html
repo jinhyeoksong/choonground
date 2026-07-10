@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>H5game 0630 V66 393px Gameplay Fixed (LevelBadge Hidden)</title>
 <style>
-  @font-face { font-family:'Tomorrow'; src:url('../assets/fonts/tomorrow-v19-latin-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
-  @font-face { font-family:'Tomorrow'; src:url('../assets/fonts/tomorrow-v19-latin-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
-  @font-face { font-family:'Tomorrow'; src:url('../assets/fonts/tomorrow-v19-latin-700.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap; }
-  @font-face { font-family:'Tomorrow'; src:url('../assets/fonts/tomorrow-v19-latin-800.woff2') format('woff2'); font-weight:800; font-style:normal; font-display:swap; }
-  @font-face { font-family:'Tomorrow'; src:url('../assets/fonts/tomorrow-v19-latin-900.woff2') format('woff2'); font-weight:900; font-style:normal; font-display:swap; }
+  @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
+  @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
+  @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-700.woff2') format('woff2'); font-weight:700; font-style:normal; font-display:swap; }
+  @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-800.woff2') format('woff2'); font-weight:800; font-style:normal; font-display:swap; }
+  @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-900.woff2') format('woff2'); font-weight:900; font-style:normal; font-display:swap; }
   * {
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
@@ -278,9 +278,9 @@
   .skyCloud.small-mid { width:120px; opacity:.34; }
   .skyCloud.big-right { width:190px; opacity:.30; }
 
-  /* 자식 폴더 v2 기준 상대 경로 확보 */
-  .mountain-bg { position: absolute; left: 0; bottom: 85px; width: 100%; height: 248px; background: url('../assets/bg_mountain.webp') no-repeat bottom left; background-size: 1179px auto; z-index: 5; will-change: background-position-x; }
-  .ground { position: absolute; left: 0; bottom: 0; width: 100%; height: 85px; background: url('../assets/bg_ground.png') repeat-x bottom left; background-size: 393px 85px; z-index: 10; will-change: background-position-x; }
+  /* index.html과 같은 위치의 assets 폴더 사용 */
+  .mountain-bg { position: absolute; left: 0; bottom: 85px; width: 100%; height: 248px; background: url('assets/bg_mountain.webp') no-repeat bottom left; background-size: 1179px auto; z-index: 5; will-change: background-position-x; }
+  .ground { position: absolute; left: 0; bottom: 0; width: 100%; height: 85px; background: url('assets/bg_ground.png') repeat-x bottom left; background-size: 393px 85px; z-index: 10; will-change: background-position-x; }
 
   /* result */
   .panel { position:absolute; left:20px; right:20px; top:118px; background:rgba(255,255,255,.94); border-radius:28px; padding:28px 22px; box-shadow:0 20px 48px rgba(0,0,0,.08); text-align:center; }
@@ -327,10 +327,10 @@
     <section id="gameScreen" class="screen active">
       <div class="playArea" id="playArea">
         <div class="feverFlash" id="feverFlash"></div>
-        <div class="skyCloud big-left" data-x="-95" data-y="225" data-parallax="1"><img src="../assets/bg_cloud_large.png" alt="" /></div>
-        <div class="skyCloud small-top" data-x="460" data-y="64" data-parallax="1"><img src="../assets/bg_cloud_small.png" alt="" /></div>
-        <div class="skyCloud small-mid" data-x="830" data-y="300" data-parallax="1"><img src="../assets/bg_cloud_small.png" alt="" /></div>
-        <div class="skyCloud big-right" data-x="1095" data-y="5" data-parallax="1"><img src="../assets/bg_cloud_large.png" alt="" /></div>
+        <div class="skyCloud big-left" data-x="-95" data-y="225" data-parallax="1"><img src="assets/bg_cloud_large.png" alt="" /></div>
+        <div class="skyCloud small-top" data-x="460" data-y="64" data-parallax="1"><img src="assets/bg_cloud_small.png" alt="" /></div>
+        <div class="skyCloud small-mid" data-x="830" data-y="300" data-parallax="1"><img src="assets/bg_cloud_small.png" alt="" /></div>
+        <div class="skyCloud big-right" data-x="1095" data-y="5" data-parallax="1"><img src="assets/bg_cloud_large.png" alt="" /></div>
         <div class="mountain-bg" id="mountainBg"></div>
         <div class="ground" id="ground"></div>
       </div>
@@ -344,13 +344,13 @@
       <div class="hud">
         <div class="pills">
           <div class="pill">
-            <img src="../assets/item_supply.png"/> 
+            <img src="assets/item_supply.png"/> 
             <span id="boxCountText">0</span>
           </div>
         </div>
       </div>
       <div class="lifeHud" id="lifeHud">
-        <img src="../assets/life_icon.png" class="lifeIcon" alt="목숨" />
+        <img src="assets/life_icon.png" class="lifeIcon" alt="목숨" />
         <span class="lifeX">x</span>
         <span id="lifeCountText">3</span>
       </div>
@@ -367,14 +367,14 @@
           <text class="comboSvgText" x="85" y="95">COMBO</text>
         </svg>
       </div>
-      <div class="player" id="player"><img src="../assets/player_idle.png" alt="춘식이"/></div>
+      <div class="player" id="player"><img src="assets/player_idle.png" alt="춘식이"/></div>
     </section>
 
     <section id="result" class="screen resultScene">
       <div class="resultCard">
         <h2 class="resultCardTitle">보급 완료</h2>
         <div class="resultSupplyTotal">
-          <img class="resultSupplyIcon" src="../assets/result_supply_box.png" alt="보급상자" />
+          <img class="resultSupplyIcon" src="assets/result_supply_box.png" alt="보급상자" />
           <b id="finalSupplyCount">0</b>
         </div>
         <div class="resultStats">
@@ -399,7 +399,7 @@
       <div class="topbar"><div class="back">‹</div><div class="share">↗</div></div>
       <div class="panel">
         <div class="resultTitle">보상 저장</div>
-        <img class="resultChunsik" src="../assets/hero_character.png" />
+        <img class="resultChunsik" src="assets/hero_character.png" />
         <div class="saved">카카오 계정으로 로그인하고<br/>배그 계정에 보상을 저장하세요.</div>
       </div>
       <button class="darkBtn" id="completeBtn">계정 연동하고 저장하기</button>
@@ -410,7 +410,7 @@
       <div class="topbar"><div class="back">‹</div><div class="share">↗</div></div>
       <div class="panel">
         <div class="resultTitle">저장 완료!</div>
-        <img class="resultChunsik" src="../assets/hero_character.png" />
+        <img class="resultChunsik" src="assets/hero_character.png" />
         <div class="saved">배그 춘식이 스킨 보상은<br/>게임 내 우편함에서 확인할 수 있습니다.</div>
       </div>
       <button class="darkBtn" id="againBtn">처음으로</button>
@@ -427,8 +427,8 @@
   document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
   document.addEventListener('touchend', e => e.preventDefault(), { passive: false });
 
-  /* 자식 폴더 v2 기준 상대 경로 확보 */
-  const ASSETS = { chunsik:'../assets/player_character.png', box:'../assets/item_supply_drop.png', gold:'../assets/item_fever.png', mouse:'../assets/obstacle_hazard.png', effect:'../assets/fx_pickup.png' };
+  /* index.html과 같은 위치의 assets 폴더 사용 */
+  const ASSETS = { chunsik:'assets/player_character.png', box:'assets/item_supply_drop.png', gold:'assets/item_fever.png', mouse:'assets/obstacle_hazard.png', effect:'assets/fx_pickup.png' };
   const $ = (id) => document.getElementById(id);
   const screens = ['gameScreen','result','save','complete'].map($);
   const show = (id) => { screens.forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); };
@@ -436,9 +436,9 @@
   const playArea = $('playArea');
   const playerEl = $('player');
   const playerImg = playerEl.querySelector('img');
-  const PLAYER_RUN_SRC = '../assets/player_run.webp';
-  const PLAYER_IDLE_SRC = '../assets/player_idle.png';
-  const PLAYER_HIT_SRC = '../assets/player_hit.png';
+  const PLAYER_RUN_SRC = 'assets/player_run.webp';
+  const PLAYER_IDLE_SRC = 'assets/player_idle.png';
+  const PLAYER_HIT_SRC = 'assets/player_hit.png';
   const positionDirText = $('positionDir');
   const positionPercentText = $('positionPercent');
   const boxCountText = $('boxCountText');
