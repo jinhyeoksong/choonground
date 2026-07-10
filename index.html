@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>H5game 0630 V66 393px Gameplay Fixed (Lobby & Audio Added)</title>
+<title>H5game v2 - Sound Cleaned</title>
 <style>
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
@@ -437,8 +437,8 @@
         </div>
       </div>
       <div class="resultButtons">
-        <button class="resultBtn resultBtnMain" id="mainBtn">재도전</button>
-        <button class="resultBtn resultBtnRetry" id="retryBtn">치킨 응모하기</button>
+        <button class="resultBtn resultBtnMain" id="mainBtn">메인</button>
+        <button class="resultBtn resultBtnRetry" id="retryBtn">재도전</button>
       </div>
     </section>
 
@@ -517,8 +517,8 @@
       const AudioContextClass = window.AudioContext || window.webkitAudioContext;
       audioCtx = new AudioContextClass();
       masterGain = audioCtx.createGain();
-      // 마스터 볼륨 900% 폭풍 부스팅 교정 (기존 0.05에서 0.45로 시원하게 출력)
-      masterGain.gain.setValueAtTime(0.45, audioCtx.currentTime); 
+      // 모바일에서도 들리되 피로하지 않도록 전체 효과음 볼륨을 안정적으로 세팅
+      masterGain.gain.setValueAtTime(0.32, audioCtx.currentTime); 
       masterGain.connect(audioCtx.destination);
     } catch (e) {
       console.warn("Web Audio API not supported in this browser.", e);
@@ -542,7 +542,6 @@
       osc.type = type;
       osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
       
-      // 모바일 스피커 대응 짱짱해진 볼륨 스케일링 적용
       gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
       
@@ -554,74 +553,115 @@
     } catch (e) {}
   }
 
-  // 2번 기획안: 일반 보급상자 획득 (콤보량에 따른 계단식 피치 상승 메커니즘)
-  function playBoxSfx(comboCount) {
-    ensureAudio();
-    const baseFreq = 523.25; // C5 (도) 기본음에서 출발
-    const pitchShift = Math.min(15, comboCount); // 콤보 누적에 맞춰 반음씩 맑게 상승
-    const freq = baseFreq * Math.pow(2, pitchShift / 12);
-    playTone(freq, 'sine', 0.12, 0.35);
-  }
-
-  // 2번 기획안: 골든 피버 닭다리 획득 (고속 아르페지오 하프 스윕 "챠라라랑~!")
-  function playGoldSfx() {
-    ensureAudio();
-    if (!audioCtx) return;
-    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
-    notes.forEach((freq, index) => {
-      setTimeout(() => {
-        try {
-          const osc = audioCtx.createOscillator();
-          const gainNode = audioCtx.createGain();
-          osc.type = 'triangle';
-          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-          gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-          osc.connect(gainNode);
-          gainNode.connect(masterGain);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.15);
-        } catch (e) {}
-      }, index * 45); // 45ms 간격 빠른 아르페지오 음계 방출
-    });
-  }
-
-  // 3번 기획안: 피버 타임 기운차게 돌입할 때 쏘아 올리는 사이렌/부스터 스윕 효과음
-  function playFeverStartSfx() {
-    ensureAudio();
+  function playSweep(startFreq, endFreq, type, duration, vol = 0.28) {
     if (!audioCtx) return;
     try {
       const now = audioCtx.currentTime;
       const osc = audioCtx.createOscillator();
       const gainNode = audioCtx.createGain();
-      
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(220, now);
-      // 부스터 터지듯 저역에서 고역으로 지연 없는 주파수 고속 슬라이드
-      osc.frequency.exponentialRampToValueAtTime(880, now + 0.5);
-      
-      gainNode.gain.setValueAtTime(0.35, now);
-      gainNode.gain.linearRampToValueAtTime(0.001, now + 0.5);
-      
+      osc.type = type;
+      osc.frequency.setValueAtTime(startFreq, now);
+      osc.frequency.exponentialRampToValueAtTime(endFreq, now + duration);
+      gainNode.gain.setValueAtTime(vol, now);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, now + duration);
       osc.connect(gainNode);
       gainNode.connect(masterGain);
-      
-      osc.start();
-      osc.stop(now + 0.5);
+      osc.start(now);
+      osc.stop(now + duration);
     } catch (e) {}
   }
 
-  // 3번 기획안: 피버가 끝날 때 미수집 상자 일제 흡수하는 연속 타격 체인 효과음 ("뿅뿅뿅뿅뿅!")
+  function playNoise(duration = 0.12, vol = 0.22, filterFreq = 900) {
+    if (!audioCtx) return;
+    try {
+      const sampleRate = audioCtx.sampleRate;
+      const buffer = audioCtx.createBuffer(1, Math.max(1, Math.floor(sampleRate * duration)), sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < data.length; i++) {
+        data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+      }
+      const source = audioCtx.createBufferSource();
+      const filter = audioCtx.createBiquadFilter();
+      const gainNode = audioCtx.createGain();
+      source.buffer = buffer;
+      filter.type = 'lowpass';
+      filter.frequency.setValueAtTime(filterFreq, audioCtx.currentTime);
+      gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      source.connect(filter);
+      filter.connect(gainNode);
+      gainNode.connect(masterGain);
+      source.start();
+      source.stop(audioCtx.currentTime + duration);
+    } catch (e) {}
+  }
+
+  // 버튼 클릭: 짧고 가벼운 톡 사운드
+  function playButtonSfx() {
+    ensureAudio();
+    playTone(880, 'triangle', 0.055, 0.16);
+    setTimeout(() => playTone(1174.66, 'triangle', 0.045, 0.10), 38);
+  }
+
+  // 게임 시작: 버튼 톡 이후 밝게 올라가는 시작음
+  function playGameStartSfx() {
+    ensureAudio();
+    [523.25, 659.25, 783.99].forEach((freq, index) => {
+      setTimeout(() => playTone(freq, 'triangle', 0.12, 0.18), index * 70);
+    });
+  }
+
+  // 콤보 표시: 3콤보 이상부터 UI 팝업과 같이 살짝 강조
+  function playComboSfx(comboCount) {
+    ensureAudio();
+    const root = 783.99 * Math.pow(2, Math.min(comboCount, 12) / 24);
+    playTone(root, 'square', 0.075, 0.12);
+    setTimeout(() => playTone(root * 1.25, 'square', 0.075, 0.09), 42);
+  }
+
+  // 장애물 충돌 및 목숨 감소: 낮고 짧은 둔탁음 + 노이즈
+  function playHitSfx() {
+    ensureAudio();
+    playNoise(0.13, 0.22, 700);
+    playSweep(220, 92, 'sawtooth', 0.16, 0.18);
+  }
+
+  // 게임오버: 아래로 떨어지는 짧은 마무리 사운드
+  function playGameOverSfx() {
+    ensureAudio();
+    [392.00, 329.63, 261.63, 196.00].forEach((freq, index) => {
+      setTimeout(() => playTone(freq, 'triangle', 0.18, 0.16), index * 115);
+    });
+  }
+
+  // 보급상자 획득: 기존 중첩음을 제거하고 단일 팝 사운드만 사용
+  function playBoxSfx(comboCount) {
+    ensureAudio();
+    const baseFreq = 740;
+    const step = Math.min(comboCount, 10) * 18;
+    playTone(baseFreq + step, 'triangle', 0.09, 0.18);
+  }
+
+  // 피버 아이템 획득: 짧은 상승음 3개만 사용해 기존 아르페지오 중첩을 줄임
+  function playGoldSfx() {
+    ensureAudio();
+    [784, 988, 1319].forEach((freq, index) => {
+      setTimeout(() => playTone(freq, 'triangle', 0.11, 0.16), index * 55);
+    });
+  }
+
+  // 피버 시작: 짧은 부스터 스윕 1개만 재생
+  function playFeverStartSfx() {
+    ensureAudio();
+    playSweep(260, 980, 'sawtooth', 0.36, 0.20);
+  }
+
+  // 피버 종료 자동 흡수: 기존 연속 다발음 대신 부드러운 짧은 상승음 1회만 재생
   function playVacuumChainSfx(count) {
     ensureAudio();
-    if (!audioCtx) return;
-    const triggerCount = Math.min(12, count); // 다발적인 재생음 버퍼 과부하 방지
-    for (let i = 0; i < triggerCount; i++) {
-      setTimeout(() => {
-        const freq = 659.25 * Math.pow(1.03, i); // 연쇄 타격감을 부여하기 위해 순차 미세 피치업
-        playTone(freq, 'sine', 0.08, 0.28);
-      }, i * 60); // 60ms 고정 간격으로 톡톡 튀는 느낌 방출
-    }
+    if (count <= 0) return;
+    playTone(880, 'sine', 0.08, 0.12);
+    setTimeout(() => playTone(1175, 'sine', 0.08, 0.10), 70);
   }
 
   /* ==========================================================================
@@ -965,6 +1005,7 @@
   function loseLife() {
     lives = Math.max(0, lives - 1);
     updateHud();
+    playHitSfx();
     showPlayerHitVisual();
     playerEl.classList.remove('hit');
     void playerEl.offsetWidth;
@@ -1161,7 +1202,8 @@
     spawnSparklingParticles(x, y, isGold);
   }
 
-  function endGame() {
+  function endGame(reason = 'gameover') {
+    if (reason === 'gameover') playGameOverSfx();
     isGameOver=true; isStarted=false; if (raf) cancelAnimationFrame(raf);
     setGameBackgroundMode(false);
     objects.forEach(releaseObject); objects=[];
@@ -1210,15 +1252,20 @@
   // 1단계 로비 시작 버튼 액션 연동
   $('lobbyStartBtn').onclick = () => {
     ensureAudio(); // 버튼 최초 터치 오디오 활성화
+    playGameStartSfx();
     show('gameScreen');
     startGame();
   };
 
-  const retryBtnEl = $('retryBtn'); if (retryBtnEl) retryBtnEl.onclick=startGame;
-  const mainBtnEl = $('mainBtn'); if (mainBtnEl) mainBtnEl.onclick=startGame;
-  $('quitBtn').onclick=endGame;
-  $('completeBtn').onclick=()=>show('complete');
-  $('againBtn').onclick=startGame;
+  const retryBtnEl = $('retryBtn');
+  if (retryBtnEl) retryBtnEl.onclick = () => { playGameStartSfx(); startGame(); };
+
+  const mainBtnEl = $('mainBtn');
+  if (mainBtnEl) mainBtnEl.onclick = () => { playButtonSfx(); show('lobbyScreen'); };
+
+  $('quitBtn').onclick = () => { playButtonSfx(); endGame('quit'); };
+  $('completeBtn').onclick = () => { playButtonSfx(); show('complete'); };
+  $('againBtn').onclick = () => { playGameStartSfx(); startGame(); };
 
   updatePhoneScale();
   // 첫 화면으로 대기실 로비 스크린을 노출합니다.
