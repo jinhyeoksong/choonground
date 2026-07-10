@@ -437,8 +437,8 @@
         </div>
       </div>
       <div class="resultButtons">
-        <button class="resultBtn resultBtnMain" id="mainBtn">재도전</button>
-        <button class="resultBtn resultBtnRetry" id="retryBtn">치킨 응모하기</button>
+        <button class="resultBtn resultBtnMain" id="mainBtn">메인</button>
+        <button class="resultBtn resultBtnRetry" id="retryBtn">재도전</button>
       </div>
     </section>
 
@@ -1258,10 +1258,10 @@
   };
 
   const retryBtnEl = $('retryBtn');
-  if (retryBtnEl) retryBtnEl.onclick = () => { playButtonSfx(); show('lobbyScreen'); };
+  if (retryBtnEl) retryBtnEl.onclick = () => { playGameStartSfx(); startGame(); };
 
   const mainBtnEl = $('mainBtn');
-  if (mainBtnEl) mainBtnEl.onclick = () => { playGameStartSfx(); startGame(); };
+  if (mainBtnEl) mainBtnEl.onclick = () => { playButtonSfx(); show('lobbyScreen'); };
 
   $('quitBtn').onclick = () => { playButtonSfx(); endGame('quit'); };
   $('completeBtn').onclick = () => { playButtonSfx(); show('complete'); };
