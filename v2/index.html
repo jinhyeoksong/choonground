@@ -351,6 +351,7 @@
   .resultStatValue { font-weight: 600; }
   .resultButtons { position: absolute; left: 20px; right: 20px; bottom: 40px; display: grid; grid-template-columns: 130px 1fr; gap: 12px; z-index: 8; }
   .resultBtn { height: 60px; border: 0; border-radius: 10px; font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif; font-size: 18px; line-height: 1; font-weight: 600; cursor: pointer; }
+  button, #quitBtn { pointer-events: auto; touch-action: manipulation; -webkit-user-select: none; user-select: none; }
   .resultBtnMain { background: #2D3769; color: #FFFFFF; }
   .resultBtnRetry { background: #FFE11F; color: #111111; }
 
@@ -1242,23 +1243,41 @@
   playArea.addEventListener('pointerup', e=>{ e.preventDefault(); stopTouchMove(); });
   playArea.addEventListener('pointercancel', e=>{ e.preventDefault(); stopTouchMove(); });
 
-  // 1단계 로비 시작 버튼 액션 연동
-  $('lobbyStartBtn').onclick = () => {
+  function bindTap(el, handler) {
+    if (!el) return;
+    let handledAt = 0;
+    const run = (e) => {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      handledAt = Date.now();
+      handler();
+    };
+    el.addEventListener('pointerup', run, { passive: false });
+    el.addEventListener('click', (e) => {
+      if (Date.now() - handledAt < 500) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+      run(e);
+    }, { passive: false });
+  }
+
+  // 모바일에서는 전역 touch preventDefault 때문에 onclick이 막힐 수 있어 pointerup/click을 함께 바인딩합니다.
+  bindTap($('lobbyStartBtn'), () => {
     ensureAudio(); // 버튼 최초 터치 오디오 활성화
     playGameStartSfx();
     show('gameScreen');
     startGame();
-  };
+  });
 
-  const retryBtnEl = $('retryBtn');
-  if (retryBtnEl) retryBtnEl.onclick = () => { playGameStartSfx(); startGame(); };
-
-  const mainBtnEl = $('mainBtn');
-  if (mainBtnEl) mainBtnEl.onclick = () => { playButtonSfx(); show('lobbyScreen'); };
-
-  $('quitBtn').onclick = () => { playButtonSfx(); endGame('quit'); };
-  $('completeBtn').onclick = () => { playButtonSfx(); show('complete'); };
-  $('againBtn').onclick = () => { playGameStartSfx(); startGame(); };
+  bindTap($('retryBtn'), () => { playGameStartSfx(); startGame(); });
+  bindTap($('mainBtn'), () => { playButtonSfx(); show('lobbyScreen'); });
+  bindTap($('quitBtn'), () => { playButtonSfx(); endGame('quit'); });
+  bindTap($('completeBtn'), () => { playButtonSfx(); show('complete'); });
+  bindTap($('againBtn'), () => { playGameStartSfx(); startGame(); });
 
   updatePhoneScale();
   // 첫 화면으로 대기실 로비 스크린을 노출합니다.
