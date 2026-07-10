@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>H5game 0630 V66 393px Gameplay Fixed (LevelBadge Hidden)</title>
+<title>H5game 0630 V66 393px Gameplay Fixed (Lobby & Audio Added)</title>
 <style>
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
@@ -49,6 +49,49 @@
   .topbar { position:absolute; top:0; left:0; right:0; height:50px; display:flex; align-items:center; justify-content:space-between; padding:0 16px; font-weight:900; z-index:20; }
   .topbar .back { font-size:26px; }
   .topbar .share { font-size:24px; transform:rotate(-45deg); }
+  
+  /* 신규: 메인 대기실(로비) 전용 레이어 */
+  #lobbyScreen {
+    position: absolute;
+    inset: 0;
+    background: url('assets/image_184d66.jpg') no-repeat center center;
+    background-size: cover;
+    z-index: 90;
+    display: none; /* 디폴트는 보이지 않게 처리하여 스타일 꼬임 및 화면 잠김 방지 */
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 40px 20px;
+  }
+  
+  /* active 클래스가 붙었을 때만 플렉스 상자로 전면 노출 */
+  #lobbyScreen.active {
+    display: flex !important;
+  }
+
+  /* 결과 화면의 .resultBtn .resultBtnRetry 양식과 오차 없이 100% 매칭 (그림자 완전 제거) */
+  .lobbyBtn {
+    width: 100%;
+    height: 60px;
+    border: 0;
+    border-radius: 10px;
+    font-family: 'Pretendard', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 600;
+    color: #111111;
+    background: #FFE11F;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none !important; /* 그림자 완전 제거 */
+    outline: none;
+    transition: transform 0.1s ease;
+  }
+
+  .lobbyBtn:active {
+    transform: scale(0.98); /* 누를 때의 가벼운 수축 피드백 유지 */
+  }
   
   /* 뒤로가기 버튼 현재 크기 기준 1.3배 확대 */
   #quitBtn {
@@ -324,7 +367,12 @@
 <body>
   <div class="phone" id="phone">
     
-    <section id="gameScreen" class="screen active">
+    <!-- 로비 스크린 (첫 진입 화면) -->
+    <section id="lobbyScreen" class="screen active">
+      <button class="lobbyBtn" id="lobbyStartBtn">게임 시작하기</button>
+    </section>
+    
+    <section id="gameScreen" class="screen">
       <div class="playArea" id="playArea">
         <div class="feverFlash" id="feverFlash"></div>
         <div class="skyCloud big-left" data-x="-95" data-y="225" data-parallax="1"><img src="assets/bg_cloud_large.png" alt="" /></div>
@@ -430,7 +478,7 @@
   /* index.html과 같은 위치의 assets 폴더 사용 */
   const ASSETS = { chunsik:'assets/player_character.png', box:'assets/item_supply_drop.png', gold:'assets/item_fever.png', mouse:'assets/obstacle_hazard.png', effect:'assets/fx_pickup.png' };
   const $ = (id) => document.getElementById(id);
-  const screens = ['gameScreen','result','save','complete'].map($);
+  const screens = ['lobbyScreen','gameScreen','result','save','complete'].map($);
   const show = (id) => { screens.forEach(s=>s.classList.remove('active')); $(id).classList.add('active'); };
 
   const playArea = $('playArea');
@@ -457,6 +505,128 @@
   const CAMERA_MAX_X = WORLD_W - SCREEN_W;
   let cameraX = CAMERA_MAX_X / 2;
 
+  /* ==========================================================================
+     🎵 Web Audio API 기반 Chiptune 사운드 신시사이저 엔진
+     ========================================================================== */
+  let audioCtx = null;
+  let masterGain = null;
+
+  function initAudio() {
+    if (audioCtx) return;
+    try {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContextClass();
+      masterGain = audioCtx.createGain();
+      // 마스터 볼륨 900% 폭풍 부스팅 교정 (기존 0.05에서 0.45로 시원하게 출력)
+      masterGain.gain.setValueAtTime(0.45, audioCtx.currentTime); 
+      masterGain.connect(audioCtx.destination);
+    } catch (e) {
+      console.warn("Web Audio API not supported in this browser.", e);
+    }
+  }
+
+  function ensureAudio() {
+    initAudio();
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+  }
+
+  // 기분 좋은 효과음 재생 톤 제네레이터
+  function playTone(freq, type, duration, vol = 0.35) {
+    if (!audioCtx) return;
+    try {
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      
+      // 모바일 스피커 대응 짱짱해진 볼륨 스케일링 적용
+      gainNode.gain.setValueAtTime(vol, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+      
+      osc.connect(gainNode);
+      gainNode.connect(masterGain);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {}
+  }
+
+  // 2번 기획안: 일반 보급상자 획득 (콤보량에 따른 계단식 피치 상승 메커니즘)
+  function playBoxSfx(comboCount) {
+    ensureAudio();
+    const baseFreq = 523.25; // C5 (도) 기본음에서 출발
+    const pitchShift = Math.min(15, comboCount); // 콤보 누적에 맞춰 반음씩 맑게 상승
+    const freq = baseFreq * Math.pow(2, pitchShift / 12);
+    playTone(freq, 'sine', 0.12, 0.35);
+  }
+
+  // 2번 기획안: 골든 피버 닭다리 획득 (고속 아르페지오 하프 스윕 "챠라라랑~!")
+  function playGoldSfx() {
+    ensureAudio();
+    if (!audioCtx) return;
+    const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C5, E5, G5, C6, E6
+    notes.forEach((freq, index) => {
+      setTimeout(() => {
+        try {
+          const osc = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+          osc.connect(gainNode);
+          gainNode.connect(masterGain);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.15);
+        } catch (e) {}
+      }, index * 45); // 45ms 간격 빠른 아르페지오 음계 방출
+    });
+  }
+
+  // 3번 기획안: 피버 타임 기운차게 돌입할 때 쏘아 올리는 사이렌/부스터 스윕 효과음
+  function playFeverStartSfx() {
+    ensureAudio();
+    if (!audioCtx) return;
+    try {
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, now);
+      // 부스터 터지듯 저역에서 고역으로 지연 없는 주파수 고속 슬라이드
+      osc.frequency.exponentialRampToValueAtTime(880, now + 0.5);
+      
+      gainNode.gain.setValueAtTime(0.35, now);
+      gainNode.gain.linearRampToValueAtTime(0.001, now + 0.5);
+      
+      osc.connect(gainNode);
+      gainNode.connect(masterGain);
+      
+      osc.start();
+      osc.stop(now + 0.5);
+    } catch (e) {}
+  }
+
+  // 3번 기획안: 피버가 끝날 때 미수집 상자 일제 흡수하는 연속 타격 체인 효과음 ("뿅뿅뿅뿅뿅!")
+  function playVacuumChainSfx(count) {
+    ensureAudio();
+    if (!audioCtx) return;
+    const triggerCount = Math.min(12, count); // 다발적인 재생음 버퍼 과부하 방지
+    for (let i = 0; i < triggerCount; i++) {
+      setTimeout(() => {
+        const freq = 659.25 * Math.pow(1.03, i); // 연쇄 타격감을 부여하기 위해 순차 미세 피치업
+        playTone(freq, 'sine', 0.08, 0.28);
+      }, i * 60); // 60ms 고정 간격으로 톡톡 튀는 느낌 방출
+    }
+  }
+
+  /* ==========================================================================
+     🎮 뷰포트 피팅 및 기기 최적화 스케일링 설정
+     ========================================================================== */
   function updatePhoneScale() {
     if (!phoneEl) return;
     const isMobile = window.matchMedia('(max-width: 600px)').matches;
@@ -584,6 +754,10 @@
     isFever = true;
     feverCount += 1;
     feverEndTime = now + 5000;
+    
+    // 피버 진입 오디오 효과 재생
+    playFeverStartSfx();
+
     objects.filter(o=>o.type==='mouse').forEach(o=>{ o.dead=true; o.el.style.display = 'none'; const p = objectPool.find(x=>x.el===o.el); if(p)p.inUse=false; });
     objects = objects.filter(o=>!o.dead);
 
@@ -610,6 +784,12 @@
     isFeverNoticeActive = false;
     clearTimeout(feverNoticeTimer);
     const feverCollectedObjects = objects.filter(o=>o.type==='box' || o.type==='gold');
+    
+    // 피버 종료에 따른 잔여 상자 자동 자석 흡수 오디오 ("뿅뿅뿅뿅뿅!")
+    if (feverCollectedObjects.length > 0) {
+      playVacuumChainSfx(feverCollectedObjects.length);
+    }
+
     feverCollectedObjects.forEach(o=>{
       spawnFeverAutoPickupEffect(o.x + o.w/2, o.y + o.h/2);
       supplyCount += 1;
@@ -685,10 +865,10 @@
       dead:false
     };
 
-    // 보급품(box) 스폰 시 좌/우 방향 중 무작위로 하나의 기울기 각도만 고정 부여
+    // 보급품 낙하 틸트 무작위 고정 각도 부여 (바람을 헤치는 흔들림 보장)
     if (type === 'box') {
       const direction = Math.random() < 0.5 ? -1 : 1;
-      obj.fixedAngle = direction * (1.8 + Math.random() * 1.2); // 1.8도 ~ 3.0도 사이로 고정
+      obj.fixedAngle = direction * (1.8 + Math.random() * 1.2);
     }
 
     objects.push(obj);
@@ -801,7 +981,6 @@
     for (const o of objects) {
       o.y += o.speed*dt;
       
-      // 보급품(box)은 수직으로 한치의 흔들림 없이 직선 하강하고, 스폰 때 정해진 고정각(fixedAngle)으로만 렌더링
       let transformStr = `translate3d(${o.x - cameraX}px, ${o.y}px, 0)`;
       if (o.type === 'box' && o.fixedAngle) {
         transformStr += ` rotate(${o.fixedAngle}deg)`;
@@ -837,7 +1016,6 @@
   }
 
   function getObjectHitbox(o) {
-    // 수직 낙하하므로 실제 생성된 x 좌표 그대로 물리 판정 진행 (100% 판정의 직관성 보장)
     if (o.type === 'gold') {
       return { x: o.x, y: o.y, w: 31, h: 53 };
     }
@@ -859,6 +1037,13 @@
       supplyCount += 1;
       combo += 1;
       if (combo >= 3) showCombo(combo);
+
+      // 효과음 기획안 반영
+      if (o.type === 'box') {
+        playBoxSfx(combo);
+      } else if (o.type === 'gold') {
+        playGoldSfx();
+      }
     }
   }
 
@@ -889,17 +1074,13 @@
     setTimeout(()=>fx.remove(), 1050);
   }
 
-  // 마리오 코인 획득 방식처럼 중심에서 영롱하게 팝-투명 링으로 퍼지는 글로우 트윙클 연출
   function spawnSparklingParticles(x, y, isGold) {
     const screenX = x - cameraX;
-    
-    // 일반 상자는 깔끔하게 10개, 피버 닭다리는 조금 더 풍성한 15개 배정 (2번 룰 준수)
     const particleCount = isGold ? 15 : 10; 
     
-    // 3단계 연출 대비: 아이템 무드 분리형 컬러 구성
     const colors = isGold 
-      ? ['#FFD54F', '#FF8F00', '#FFEA00', '#FFFFFF'] // 피버 닭다리는 좀 더 액티브한 주황/불꽃색 배정
-      : ['#FFE872', '#FFD54F', '#FFF9C4', '#FFFFFF']; // 일반 상자는 레퍼런스 스타일의 순수 황금빛
+      ? ['#FFD54F', '#FF8F00', '#FFEA00', '#FFFFFF']
+      : ['#FFE872', '#FFD54F', '#FFF9C4', '#FFFFFF'];
     
     for (let i = 0; i < particleCount; i++) {
       const p = document.createElement('div');
@@ -911,7 +1092,7 @@
       p.style.pointerEvents = 'none';
       p.style.zIndex = '59';
       
-      const isStar = Math.random() < 0.45; // 45% 확률로 아기자기한 십자 별(✦) 입자 연출
+      const isStar = Math.random() < 0.45;
       if (isStar) {
         p.innerHTML = '✦';
         p.style.color = colors[Math.floor(Math.random() * colors.length)];
@@ -928,16 +1109,14 @@
       
       playArea.appendChild(p);
       
-      // 수직 부유 연산: 좌우 비산력(vx)은 최소화하여 중심에 예쁘게 모이게 함
       let vx = (Math.random() - 0.5) * 1.5; 
-      let vy = -1.2 - Math.random() * 1.8; // 부드럽게 위로 밀어 올리는 초기 속도
+      let vy = -1.2 - Math.random() * 1.8;
       let px = 0;
       let py = 0;
-      let buoyancy = -0.15; // 부력(음수의 중력 가속도)을 가해 하늘로 둥실 승천
+      let buoyancy = -0.15;
       let opacity = 1.0;
       let scale = 1.0;
       
-      // 초단기 입자 수명 설계 (0.35s ~ 0.45s)로 빠른 수집 완료
       const startTime = performance.now();
       const lifetime = 350 + Math.random() * 100;
       
@@ -953,7 +1132,7 @@
         scale = 1.0 - t * 0.6;
         
         px += vx;
-        vy += buoyancy; // 역중력 가속
+        vy += buoyancy;
         py += vy;
         
         p.style.transform = `translate3d(${px}px, ${py}px, 0) scale(${scale})`;
@@ -968,7 +1147,6 @@
   function spawnPickupEffect(x, y, type) {
     const screenX = x - cameraX;
 
-    // fx_pickup.png 이미지가 회전 폭발하지 않고, 둥글게 툭 터지듯 커지며 글리터를 방출하는 Twinkle 효과
     const fx = document.createElement('div');
     fx.className = 'pickupEffect';
     fx.style.left = screenX + 'px';
@@ -1019,10 +1197,22 @@
 
   function stopTouchMove() { keyLeft = false; keyRight = false; }
 
-  playArea.addEventListener('pointerdown', e=>{ e.preventDefault(); if (!isStarted || isGameOver) return; setTouchMoveByClientX(e.clientX); });
+  playArea.addEventListener('pointerdown', e=>{ 
+    e.preventDefault(); 
+    ensureAudio(); // 터치 상호작용 시마다 Web Audio 복구 및 활성화
+    if (!isStarted || isGameOver) return; 
+    setTouchMoveByClientX(e.clientX); 
+  });
   playArea.addEventListener('pointermove', e=>{ e.preventDefault(); if (!isStarted || isGameOver) return; if (e.buttons > 0) { setTouchMoveByClientX(e.clientX); } });
   playArea.addEventListener('pointerup', e=>{ e.preventDefault(); stopTouchMove(); });
   playArea.addEventListener('pointercancel', e=>{ e.preventDefault(); stopTouchMove(); });
+
+  // 1단계 로비 시작 버튼 액션 연동
+  $('lobbyStartBtn').onclick = () => {
+    ensureAudio(); // 버튼 최초 터치 오디오 활성화
+    show('gameScreen');
+    startGame();
+  };
 
   const retryBtnEl = $('retryBtn'); if (retryBtnEl) retryBtnEl.onclick=startGame;
   const mainBtnEl = $('mainBtn'); if (mainBtnEl) mainBtnEl.onclick=startGame;
@@ -1031,7 +1221,8 @@
   $('againBtn').onclick=startGame;
 
   updatePhoneScale();
-  setTimeout(startGame, 0);
+  // 첫 화면으로 대기실 로비 스크린을 노출합니다.
+  show('lobbyScreen');
 })();
 </script>
 </body>
