@@ -514,10 +514,6 @@
   let feverEndTime=0, nextFeverAllowedTime=0;
   let lastGoldSpawnTime=0;
 
-  let audioCtx=null, masterGain=null, musicTimer=null, isAudioReady=false;
-  const bgmNotes = [261.63, 329.63, 392.00, 493.88, 440.00, 392.00, 329.63, 293.66];
-  let bgmStep = 0;
-
   function difficulty(now) {
     const t = (now - gameStartTime) / 1000;
     const lv = Math.max(1, Math.min(10, difficultyLevel));
@@ -563,7 +559,7 @@
     setGameBackgroundMode(false);
   }
 
-  function startGame() { resetGame(); show('gameScreen'); setGameBackgroundMode(true); startBgm(); raf=requestAnimationFrame(loop); }
+  function startGame() { resetGame(); show('gameScreen'); setGameBackgroundMode(true); raf=requestAnimationFrame(loop); }
 
   function updateHud() {
     updatePositionHud();
@@ -598,8 +594,6 @@
     feverNoticeTimer = setTimeout(()=>{ isFeverNoticeActive = false; }, 1050);
 
     feverBadge.classList.add('on'); feverFlash.classList.remove('on');
-    setBgmFever(true);
-    playFeverSfx();
   }
 
   function endFever(now) {
@@ -615,7 +609,6 @@
     feverBadge.classList.remove('on'); feverFlash.classList.remove('on');
     isFeverNoticeActive = false;
     clearTimeout(feverNoticeTimer);
-    setBgmFever(false);
     const feverCollectedObjects = objects.filter(o=>o.type==='box' || o.type==='gold');
     feverCollectedObjects.forEach(o=>{
       spawnFeverAutoPickupEffect(o.x + o.w/2, o.y + o.h/2);
@@ -992,7 +985,6 @@
 
   function endGame() {
     isGameOver=true; isStarted=false; if (raf) cancelAnimationFrame(raf);
-    stopBgm();
     setGameBackgroundMode(false);
     objects.forEach(releaseObject); objects=[];
     $('finalSupplyCount').textContent = supplyCount;
@@ -1007,70 +999,6 @@
     playerImg.style.display = 'none';
     $('gameScreen').classList.add('resultMode');
     $('result').classList.add('active');
-  }
-
-  function ensureAudio() {
-    if (audioCtx) return;
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    audioCtx = new AC();
-    masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0.045;
-    masterGain.connect(audioCtx.destination);
-  }
-
-  function startBgm() {
-    ensureAudio();
-    if (!audioCtx || !masterGain) return;
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    if (isAudioReady) return;
-    isAudioReady = true;
-    bgmStep = 0;
-    musicTimer = setInterval(playBgmStep, 285);
-    playBgmStep();
-  }
-
-  function stopBgm() {
-    if (musicTimer) clearInterval(musicTimer);
-    musicTimer = null; isAudioReady = false;
-    if (masterGain && audioCtx) {
-      masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-      masterGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.08);
-    }
-  }
-
-  function setBgmFever(on) {
-    if (!audioCtx || !masterGain) return;
-    const t = audioCtx.currentTime;
-    masterGain.gain.cancelScheduledValues(t);
-    masterGain.gain.setTargetAtTime(on ? 0.075 : 0.045, t, 0.05);
-  }
-
-  function playTone(freq, duration=0.16, type='sine', gain=0.055) {
-    if (!audioCtx || !masterGain) return;
-    const t = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    osc.type = type; osc.frequency.setValueAtTime(freq, t);
-    g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(gain, t + 0.018);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + duration);
-    osc.connect(g); g.connect(masterGain);
-    osc.start(t); osc.stop(t + duration + 0.04);
-  }
-
-  function playBgmStep() {
-    if (!audioCtx || !masterGain || !isAudioReady || isGameOver) return;
-    const base = bgmNotes[bgmStep % bgmNotes.length];
-    const octave = isFever ? 2 : 1;
-    playTone(base * octave, isFever ? 0.13 : 0.18, isFever ? 'triangle' : 'sine', isFever ? 0.047 : 0.035);
-    if (bgmStep % 4 === 0) playTone(base / 2, 0.32, 'sine', 0.024);
-    bgmStep++;
-  }
-
-  function playFeverSfx() {
-    if (!audioCtx) return;
-    [523.25, 659.25, 783.99, 1046.5].forEach((f, i)=>setTimeout(()=>playTone(f, 0.12, 'triangle', 0.06), i*55));
   }
 
   window.addEventListener('keydown', e=>{
