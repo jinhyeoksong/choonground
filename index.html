@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<title>H5game 0630 V66 393px Gameplay Fixed</title>
+<title>H5game 0630 V66 393px Gameplay Fixed (LevelBadge Hidden)</title>
 <style>
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-500.woff2') format('woff2'); font-weight:500; font-style:normal; font-display:swap; }
   @font-face { font-family:'Tomorrow'; src:url('assets/fonts/tomorrow-v19-latin-600.woff2') format('woff2'); font-weight:600; font-style:normal; font-display:swap; }
@@ -188,8 +188,9 @@
     dominant-baseline:middle;
     text-anchor:middle;
   }
-  .levelBadge { position:absolute; top:158px; left:50%; transform:translateX(-50%); height:30px; padding:0 12px; border-radius:16px; background:rgba(17,24,39,.76); color:#fff; font-family:Tomorrow,Impact,sans-serif; font-size:13px; font-weight:900; letter-spacing:.3px; display:flex; align-items:center; justify-content:center; z-index:39; opacity:.9; }
-  .levelBadge.up { animation:levelUp .72s ease-out; background:#ffef49; color:#111; box-shadow:0 8px 24px rgba(255,224,40,.42); }
+
+  /* ★ 노란색 레벨 토스트 팝업을 화면에서 절대 표시되지 않도록 숨김 처리 */
+  .levelBadge { display: none !important; }
   
   @keyframes levelUp { 0%{ transform:translateX(-50%) scale(.75); opacity:0; } 25%{ transform:translateX(-50%) scale(1.18); opacity:1; } 100%{ transform:translateX(-50%) scale(1); opacity:.9; } }
   @keyframes feverTextPop { 0%{ opacity:0; transform:translate(-50%,-42%) scale(.5); } 16%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 72%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-58%) scale(.96); } }
@@ -226,7 +227,7 @@
   .comboSvgText { font-size:25px; font-weight:700; stroke-width:6px; }
   @keyframes comboPop { 0%{ opacity:0; transform:translate(-50%,-40%) scale(.55); } 18%{ opacity:1; transform:translate(-50%,-50%) scale(1.08); } 62%{ opacity:1; transform:translate(-50%,-50%) scale(1); } 100%{ opacity:0; transform:translate(-50%,-64%) scale(.98); } }
   
-  /* ★ 2단계 튜닝: fx_pickup.png 이미지가 회전 폭파하지 않고, 마리오 코인처럼 중심에서 영롱하게 팝-투명 링으로 퍼지는 글로우 트윙클 연출 */
+  /* 마리오 코인 획득 방식처럼 중심에서 영롱하게 팝-투명 링으로 퍼지는 글로우 트윙클 연출 */
   .pickupEffect { position:absolute; left:0; top:0; width:58px; height:58px; z-index:60; pointer-events:none; transform:translate(-50%,-50%) scale(.7); animation:pickupBurst 0.45s ease-out forwards; }
   .pickupEffect img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
   .feverAutoPickupEffect { position:absolute; left:0; top:0; width:64px; height:64px; z-index:60; pointer-events:none; transform:translate(-50%,-50%) scale(.8); animation:feverAutoPickupBurst 1.05s ease-out forwards; }
@@ -277,6 +278,7 @@
   .skyCloud.small-mid { width:120px; opacity:.34; }
   .skyCloud.big-right { width:190px; opacity:.30; }
 
+  /* index.html과 같은 위치의 assets 폴더 사용 */
   .mountain-bg { position: absolute; left: 0; bottom: 85px; width: 100%; height: 248px; background: url('assets/bg_mountain.webp') no-repeat bottom left; background-size: 1179px auto; z-index: 5; will-change: background-position-x; }
   .ground { position: absolute; left: 0; bottom: 0; width: 100%; height: 85px; background: url('assets/bg_ground.png') repeat-x bottom left; background-size: 393px 85px; z-index: 10; will-change: background-position-x; }
 
@@ -425,6 +427,7 @@
   document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
   document.addEventListener('touchend', e => e.preventDefault(), { passive: false });
 
+  /* index.html과 같은 위치의 assets 폴더 사용 */
   const ASSETS = { chunsik:'assets/player_character.png', box:'assets/item_supply_drop.png', gold:'assets/item_fever.png', mouse:'assets/obstacle_hazard.png', effect:'assets/fx_pickup.png' };
   const $ = (id) => document.getElementById(id);
   const screens = ['gameScreen','result','save','complete'].map($);
@@ -689,7 +692,7 @@
       dead:false
     };
 
-    // ★ 1단계 튜닝: 보급품(box) 스폰 시 좌/우 방향 중 무작위로 하나의 기울기 각도만 고정 부여
+    // 보급품(box) 스폰 시 좌/우 방향 중 무작위로 하나의 기울기 각도만 고정 부여
     if (type === 'box') {
       const direction = Math.random() < 0.5 ? -1 : 1;
       obj.fixedAngle = direction * (1.8 + Math.random() * 1.2); // 1.8도 ~ 3.0도 사이로 고정
@@ -805,7 +808,7 @@
     for (const o of objects) {
       o.y += o.speed*dt;
       
-      // ★ 1단계 튜닝: 보급품(box)은 수직으로 한치의 흔들림 없이 직선 하강하고, 스폰 때 정해진 고정각(fixedAngle)으로만 렌더링
+      // 보급품(box)은 수직으로 한치의 흔들림 없이 직선 하강하고, 스폰 때 정해진 고정각(fixedAngle)으로만 렌더링
       let transformStr = `translate3d(${o.x - cameraX}px, ${o.y}px, 0)`;
       if (o.type === 'box' && o.fixedAngle) {
         transformStr += ` rotate(${o.fixedAngle}deg)`;
@@ -841,7 +844,7 @@
   }
 
   function getObjectHitbox(o) {
-    // ★ 1단계 튜닝: 수직 낙하하므로 실제 생성된 x 좌표 그대로 물리 판정 진행 ($100\%$ 판정의 직관성 보장)
+    // 수직 낙하하므로 실제 생성된 x 좌표 그대로 물리 판정 진행 (100% 판정의 직관성 보장)
     if (o.type === 'gold') {
       return { x: o.x, y: o.y, w: 31, h: 53 };
     }
@@ -856,7 +859,7 @@
   function collect(o, pts, now) {
     const fxX = o.x + o.w/2;
     const fxY = o.y + o.h/2;
-    spawnPickupEffect(fxX, fxY, o.type); // ★ o.type 전달하도록 확장
+    spawnPickupEffect(fxX, fxY, o.type); 
     releaseObject(o);
     score += pts;
     if (o.type === 'box' || o.type === 'gold') {
@@ -893,8 +896,7 @@
     setTimeout(()=>fx.remove(), 1050);
   }
 
-  // ★ 2단계 수정: 마리오 코인 획득 방식처럼 중력을 완전히 거스르고 
-  // 십자 별(✦)과 둥근 빛가루가 위로 둥실 떠오르며 '수집/획득'되는 안심 이펙트 시스템
+  // 마리오 코인 획득 방식처럼 중심에서 영롱하게 팝-투명 링으로 퍼지는 글로우 트윙클 연출
   function spawnSparklingParticles(x, y, isGold) {
     const screenX = x - cameraX;
     
@@ -933,16 +935,16 @@
       
       playArea.appendChild(p);
       
-      // ★ 수직 부유 연산: 좌우 비산력(vx)은 최소화하여 중심에 예쁘게 모이게 함
+      // 수직 부유 연산: 좌우 비산력(vx)은 최소화하여 중심에 예쁘게 모이게 함
       let vx = (Math.random() - 0.5) * 1.5; 
       let vy = -1.2 - Math.random() * 1.8; // 부드럽게 위로 밀어 올리는 초기 속도
       let px = 0;
       let py = 0;
-      let buoyancy = -0.15; // ★ 부력(음수의 중력 가속도)을 가해 하늘로 둥실 승천
+      let buoyancy = -0.15; // 부력(음수의 중력 가속도)을 가해 하늘로 둥실 승천
       let opacity = 1.0;
       let scale = 1.0;
       
-      // 초단기 입자 수명 설계 (0.35s ~ 0.45s)로 빠른 수집 완료 (1번 룰 준수)
+      // 초단기 입자 수명 설계 (0.35s ~ 0.45s)로 빠른 수집 완료
       const startTime = performance.now();
       const lifetime = 350 + Math.random() * 100;
       
@@ -984,7 +986,6 @@
     playArea.appendChild(fx);
     setTimeout(()=>fx.remove(), 560);
 
-    // ★ 2단계 수집 연동 분기 처리 (모두 +1 팝업 글자는 완전 생략)
     const isGold = (type === 'gold');
     spawnSparklingParticles(x, y, isGold);
   }
