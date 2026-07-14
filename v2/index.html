@@ -726,7 +726,7 @@
   let raf = null;
   let objects = [];
   let objectPool = []; 
-  let score = 0, supplyCount = 0, combo = 0;
+  let score = 0, supplyCount = 0, combo = 0, maxCombo = 0;
   let feverCount = 0;
   let lives = 3;
   let difficultyLevel = 1;
@@ -760,7 +760,7 @@
     if (raf) cancelAnimationFrame(raf);
     objectPool.forEach(p => { p.inUse = false; p.el.style.display = 'none'; });
     objects = [];
-    score=0; supplyCount=0; combo=0; feverCount=0; lives=3;
+    score=0; supplyCount=0; combo=0; maxCombo=0; feverCount=0; lives=3;
     difficultyLevel=1;
     keyLeft=false; keyRight=false;
     playerVisualState='';
@@ -856,6 +856,7 @@
     });
     if (feverCollectedObjects.length > 0) {
       combo += feverCollectedObjects.length;
+      maxCombo = Math.max(maxCombo, combo);
       if (combo >= 3) showCombo(combo);
     }
     updateHud();
@@ -1109,6 +1110,7 @@
     if (o.type === 'box' || o.type === 'gold') {
       supplyCount += 1;
       combo += 1;
+      maxCombo = Math.max(maxCombo, combo);
       if (combo >= 3) showCombo(combo);
 
       // 효과음 기획안 반영
@@ -1242,7 +1244,7 @@
     $('finalSupplyCount').textContent = supplyCount;
     const finalComboCount = $('finalComboCount');
     const finalFeverCount = $('finalFeverCount');
-    if (finalComboCount) finalComboCount.textContent = combo + '개';
+    if (finalComboCount) finalComboCount.textContent = maxCombo + '개';
     if (finalFeverCount) finalFeverCount.textContent = feverCount + '회';
     clearTimeout(hitVisualTimer);
     isHitVisual = false;
