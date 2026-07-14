@@ -247,7 +247,27 @@
   .playArea { position:absolute; inset:0; overflow:hidden; touch-action:none; -webkit-user-select:none; user-select:none; }
   .playArea img { pointer-events:none; }
   .laneHint { display:none !important; }
-  .player { position:absolute; width:92px; height:114px; left:0; bottom:42px; z-index:18; transform-origin:50% 100%; will-change: transform; pointer-events:none; }
+.player {
+
+  position: absolute;
+
+  width: 83px;
+
+  height: 105px;
+
+  left: 0;
+
+  bottom: 42px;
+
+  z-index: 18;
+
+  transform-origin: 50% 100%;
+
+  will-change: transform;
+
+  pointer-events: none;
+
+}
   .player img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
   .player.hit { animation:hitShake .45s ease-out; }
   @keyframes hitShake { 0%,100%{ translate:0 0; } 20%{ translate:-8px 0; } 40%{ translate:8px 0; } 60%{ translate:-6px 0; } 80%{ translate:6px 0; } }
@@ -711,7 +731,7 @@
   let lives = 3;
   let difficultyLevel = 1;
   
-  let player = { x: WORLD_W / 2, y: 688, w: 92, h: 114, targetX: WORLD_W / 2, vx: 0, dir: 1 };
+  let player = { x: WORLD_W / 2, y: 688, w: 83, h: 105, targetX: WORLD_W / 2, vx: 0, dir: 1 };
   let playerVisualState = 'idle';
   let isHitVisual = false;
   let hitVisualTimer = null;
@@ -750,7 +770,7 @@
     gameStartTime=performance.now(); lastTime=gameStartTime; lastSpawnTime=gameStartTime;
     feverEndTime=0; nextFeverAllowedTime=gameStartTime + 9000; lastGoldSpawnTime=0;
     const centerX = WORLD_W / 2;
-    const maxPositionOffset = Math.min(centerX - 45, (WORLD_W - 45) - centerX);
+    const maxPositionOffset = Math.min(centerX - 42, (WORLD_W - 42) - centerX);
     const startSide = Math.random() < 0.5 ? -1 : 1;
     const startX = centerX + startSide * maxPositionOffset * 0.2;
     player.x=startX; player.targetX=startX; player.dir=startSide;
@@ -778,7 +798,7 @@
 
   function updatePositionHud() {
     const centerX = WORLD_W / 2;
-    const maxOffset = Math.min(centerX - 45, (WORLD_W - 45) - centerX);
+    const maxOffset = Math.min(centerX - 42, (WORLD_W - 42) - centerX);
     const delta = player.x - centerX;
     if (Math.abs(delta) > 0.8) lastPositionDirection = delta < 0 ? 'LEFT' : 'RIGHT';
     if (!positionDirText || !positionPercentText) return;
@@ -949,7 +969,7 @@
     const speed = isFever ? 660 : 500;
     if (keyLeft) { player.targetX -= speed*dt; player.dir=-1; }
     if (keyRight) { player.targetX += speed*dt; player.dir=1; }
-    player.targetX = clamp(player.targetX, 46, WORLD_W - 46);
+    player.targetX = clamp(player.targetX, 42, WORLD_W - 42);
     const prevX = player.x;
     const follow = isFever ? 0.32 : 0.24;
     player.x += (player.targetX - player.x) * follow;
@@ -1046,11 +1066,26 @@
 
   function getPlayerHitbox() {
     const scale = isFever ? 2 : 1;
-    const scaledW = player.w * scale;
-    const scaledH = player.h * scale;
-    const visualY = SCREEN_H - 42 - scaledH;
 
-    return { x: player.x - scaledW / 2, y: visualY, w: scaledW, h: scaledH };
+    /* 276×350 이미지에서 실제 캐릭터가 보이는 영역 기준 */
+    const sourceW = 276;
+    const sourceH = 350;
+    const alphaLeft = 15;
+    const alphaTop = 1;
+    const alphaRight = 259;
+    const alphaBottom = 350;
+
+    const elementW = player.w * scale;
+    const elementH = player.h * scale;
+    const elementX = player.x - elementW / 2;
+    const elementY = SCREEN_H - 42 - elementH;
+
+    return {
+      x: elementX + (alphaLeft / sourceW) * elementW,
+      y: elementY + (alphaTop / sourceH) * elementH,
+      w: ((alphaRight - alphaLeft) / sourceW) * elementW,
+      h: ((alphaBottom - alphaTop) / sourceH) * elementH
+    };
   }
 
   function getObjectHitbox(o) {
