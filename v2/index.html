@@ -251,9 +251,9 @@
 
   position: absolute;
 
-  width: 92px;
+  width: 83px;
 
-  height: 117px;
+  height: 105px;
 
   left: 0;
 
@@ -731,7 +731,7 @@
   let lives = 3;
   let difficultyLevel = 1;
   
-  let player = { x: WORLD_W / 2, y: 688, w: 92, h: 117, targetX: WORLD_W / 2, vx: 0, dir: 1 };
+  let player = { x: WORLD_W / 2, y: 688, w: 83, h: 105, targetX: WORLD_W / 2, vx: 0, dir: 1 };
   let playerVisualState = 'idle';
   let isHitVisual = false;
   let hitVisualTimer = null;
@@ -770,7 +770,7 @@
     gameStartTime=performance.now(); lastTime=gameStartTime; lastSpawnTime=gameStartTime;
     feverEndTime=0; nextFeverAllowedTime=gameStartTime + 9000; lastGoldSpawnTime=0;
     const centerX = WORLD_W / 2;
-    const maxPositionOffset = Math.min(centerX - 45, (WORLD_W - 45) - centerX);
+    const maxPositionOffset = Math.min(centerX - 42, (WORLD_W - 42) - centerX);
     const startSide = Math.random() < 0.5 ? -1 : 1;
     const startX = centerX + startSide * maxPositionOffset * 0.2;
     player.x=startX; player.targetX=startX; player.dir=startSide;
@@ -798,7 +798,7 @@
 
   function updatePositionHud() {
     const centerX = WORLD_W / 2;
-    const maxOffset = Math.min(centerX - 45, (WORLD_W - 45) - centerX);
+    const maxOffset = Math.min(centerX - 42, (WORLD_W - 42) - centerX);
     const delta = player.x - centerX;
     if (Math.abs(delta) > 0.8) lastPositionDirection = delta < 0 ? 'LEFT' : 'RIGHT';
     if (!positionDirText || !positionPercentText) return;
@@ -969,7 +969,7 @@
     const speed = isFever ? 660 : 500;
     if (keyLeft) { player.targetX -= speed*dt; player.dir=-1; }
     if (keyRight) { player.targetX += speed*dt; player.dir=1; }
-    player.targetX = clamp(player.targetX, 46, WORLD_W - 46);
+    player.targetX = clamp(player.targetX, 42, WORLD_W - 42);
     const prevX = player.x;
     const follow = isFever ? 0.32 : 0.24;
     player.x += (player.targetX - player.x) * follow;
